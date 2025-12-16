@@ -13,11 +13,7 @@
 <body>
 
     <div id="loading-screen">
-        <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="25" cy="25" r="20" fill="none" stroke="#2563eb" stroke-width="4" stroke-dasharray="80" stroke-linecap="round">
-                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/>
-            </circle>
-        </svg>
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
         <p style="margin-top: 15px; font-weight: 500;">Carregando...</p>
     </div>
 
@@ -39,6 +35,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/pages/servidores/index.html">
+                        <i class="material-icons-round">dns</i> 
+                        <span>Servidores</span>
+                    </a>
+                </li>
+                <li>
                     <a href="#">
                         <i class="material-icons-round">people</i> 
                         <span>Clientes</span>
@@ -50,7 +52,8 @@
                         <span>Assinaturas</span>
                     </a>
                 </li>
-                <li style="margin-top: auto;"> <a href="#">
+                <li style="margin-top: auto;"> 
+                    <a href="#">
                         <i class="material-icons-round">settings</i> 
                         <span>Configurações</span>
                     </a>
@@ -98,8 +101,12 @@
                 </div>
 
                 <div class="card">
-                    <h3>Estatísticas Rápidas</h3>
-                    <p>Conteúdo do painel virá aqui.</p>
+                    <h3>Atalhos Rápidos</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <a href="/pages/servidores/index.html" class="btn-primary" style="text-decoration: none;">
+                            <i class="material-icons-round">dns</i> Gerenciar Servidores
+                        </a>
+                    </div>
                 </div>
             </main>
         </div>
@@ -121,17 +128,19 @@
         html.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('pandda-theme', newTheme);
-            updateThemeIcon(newTheme);
-        });
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('pandda-theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+        }
 
         function updateThemeIcon(theme) {
-            themeIcon.innerText = theme === 'light' ? 'dark_mode' : 'light_mode';
+            if(themeIcon) themeIcon.innerText = theme === 'light' ? 'dark_mode' : 'light_mode';
         }
 
         // ==========================================
@@ -142,24 +151,28 @@
         const overlay = document.getElementById('sidebar-overlay');
         const body = document.body;
 
-        sidebarToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            
-            if (window.innerWidth > 768) {
-                // Modo Desktop: Colapsar/Expandir
-                body.classList.toggle('collapsed');
-            } else {
-                // Modo Mobile: Abrir/Fechar Off-canvas
-                sidebar.classList.toggle('mobile-active');
-                overlay.classList.toggle('active');
-            }
-        });
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                if (window.innerWidth > 768) {
+                    // Modo Desktop: Colapsar/Expandir
+                    body.classList.toggle('collapsed');
+                } else {
+                    // Modo Mobile: Abrir/Fechar Off-canvas
+                    sidebar.classList.toggle('mobile-active');
+                    overlay.classList.toggle('active');
+                }
+            });
+        }
 
         // Fechar ao clicar no overlay (Mobile)
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('mobile-active');
-            overlay.classList.remove('active');
-        });
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('mobile-active');
+                overlay.classList.remove('active');
+            });
+        }
 
         // ==========================================
         // 3. LOGOUT
