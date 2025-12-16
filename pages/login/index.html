@@ -44,22 +44,27 @@
 
                 if (!email || !password) return alert("Preencha todos os campos!");
 
-                // Feedback visual no botão
+                // Efeito visual no botão
                 btn.innerText = "Entrando...";
                 btn.disabled = true;
 
+                // Tenta logar
                 const { data, error } = await window.supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password,
                 });
 
                 if (error) {
+                    // Se der erro, avisa e libera o botão
                     alert("Erro: " + error.message);
                     btn.innerText = "ACESSAR SISTEMA";
                     btn.disabled = false;
                 } else {
+                    // Se der certo:
                     console.log("Login OK! Redirecionando...");
-                    // O redirecionamento é automático pelo supabase-client.js
+                    
+                    // FORÇA A IDA PARA A HOME IMEDIATAMENTE
+                    window.location.href = '/index.html';
                 }
             });
         }
