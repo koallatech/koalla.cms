@@ -250,3 +250,35 @@ body.collapsed .sidebar-header { justify-content: center; padding: 0; }
     display: flex; justify-content: center; align-items: center; flex-direction: column;
     color: var(--text-primary);
 }
+
+/* ========================================= */
+/* ESTILOS ESPECÍFICOS DE FORMULÁRIO         */
+/* ========================================= */
+
+/* Grid para colocar campos lado a lado (Ex: Nome DNS + URL) */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* O campo da URL fica maior que o do Nome */
+    gap: 15px;
+    align-items: end;
+}
+
+/* Título de seção dentro do formulário */
+.form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+/* Responsividade para o Grid em telas pequenas */
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr; /* Um embaixo do outro no celular */
+        gap: 10px;
+    }
+}
