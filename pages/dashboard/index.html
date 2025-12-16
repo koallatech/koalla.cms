@@ -6,123 +6,14 @@
     <title>Dashboard - Pandda</title>
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <style>
-        /* RESET BÁSICO */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        body { 
-            background-color: #f4f6f9; 
-            height: 100vh; 
-            overflow: hidden; /* Evita scroll duplo */
-        }
-
-        /* LAYOUT PRINCIPAL (FLEXBOX) */
-        .dashboard-container {
-            display: flex;
-            height: 100%;
-            width: 100%;
-        }
-
-        /* --- 1. SIDEBAR (Lateral) --- */
-        .sidebar {
-            width: 250px;
-            background-color: #2c3e50; /* Azul Escuro */
-            color: white;
-            display: flex;
-            flex-direction: column;
-            transition: width 0.3s;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid #34495e;
-            background-color: #1a252f;
-        }
-
-        .sidebar-header h2 { font-size: 24px; font-weight: bold; color: #ecf0f1; }
-        .sidebar-header span { color: #2ecc71; font-size: 14px; } /* O verde do "Pandda" */
-
-        .sidebar-menu { list-style: none; padding-top: 20px; flex: 1; }
-        .sidebar-menu li { width: 100%; }
-        
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 15px 25px;
-            color: #bdc3c7;
-            text-decoration: none;
-            transition: 0.3s;
-            font-size: 16px;
-        }
-
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: #34495e;
-            color: white;
-            border-left: 4px solid #2ecc71;
-        }
-
-        .sidebar-menu i { margin-right: 10px; }
-
-        /* --- 2. ÁREA DE CONTEÚDO --- */
-        .main-content {
-            flex: 1; /* Ocupa o resto da tela */
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto; /* Scroll apenas no conteúdo */
-        }
-
-        /* --- 3. TOPBAR (Superior) --- */
-        .topbar {
-            background-color: white;
-            height: 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 25px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        }
-
-        .toggle-btn { cursor: pointer; color: #7f8c8d; }
-        
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .user-name { font-weight: 600; color: #333; }
-
-        /* Botão de Sair estilizado */
-        #btn-logout {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: background 0.2s;
-        }
-        #btn-logout:hover { background-color: #c0392b; }
-
-        /* --- 4. CONTEÚDO DA PÁGINA --- */
-        .page-content { padding: 30px; }
-        
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-    </style>
+    
+    <link rel="stylesheet" href="/assets/css/global.css">
 </head>
 <body>
 
-    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #ffffff; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.3s ease;">
+    <div id="loading-screen">
         <div style="border: 4px solid #f3f3f3; border-top: 4px solid #2ecc71; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
         <p style="margin-top: 15px; color: #666;">Carregando sistema...</p>
-        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
     </div>
 
     <div class="dashboard-container">
@@ -133,17 +24,35 @@
                 <span>IPTV Manager</span>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="material-icons">dashboard</i> Dashboard</a></li>
-                <li><a href="#"><i class="material-icons">people</i> Clientes</a></li>
-                <li><a href="#"><i class="material-icons">subscriptions</i> Assinaturas</a></li>
-                <li><a href="#"><i class="material-icons">settings</i> Configurações</a></li>
+                <li>
+                    <a href="/pages/dashboard/index.html" class="active">
+                        <i class="material-icons">dashboard</i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="material-icons">people</i> Clientes
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="material-icons">subscriptions</i> Assinaturas
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="material-icons">settings</i> Configurações
+                    </a>
+                </li>
             </ul>
         </aside>
+
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
         <div class="main-content">
             
             <header class="topbar">
-                <div class="toggle-btn">
+                <div class="toggle-btn" id="menu-toggle">
                     <i class="material-icons">menu</i>
                 </div>
                 
@@ -162,8 +71,8 @@
                 </div>
 
                 <div class="card">
-                    <h3>Resumo Rápido</h3>
-                    <p>Aqui você poderá colocar a tabela de clientes futuramente.</p>
+                    <h3>Status do Sistema</h3>
+                    <p>Sidebar responsiva ativada.</p>
                 </div>
             </main>
         </div>
@@ -173,7 +82,38 @@
     <script src="/assets/js/supabase-client.js"></script>
 
     <script>
-        // Lógica do Botão Sair (Mantida e integrada)
+        /* ==================================
+           LÓGICA DO MENU MOBILE
+           ================================== */
+        const btnToggle = document.getElementById('menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        // Função para abrir/fechar
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // 1. Clique no botão hambúrguer
+        if (btnToggle) {
+            btnToggle.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evita bugs de clique duplo
+                toggleMenu();
+            });
+        }
+
+        // 2. Clique na parte escura (Overlay) para fechar
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+
+        /* ==================================
+           LÓGICA DE LOGOUT
+           ================================== */
         const btnLogout = document.getElementById('btn-logout');
         
         if (btnLogout) {
