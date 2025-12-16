@@ -1,8 +1,8 @@
 // assets/js/supabase-client.js
 
 // COLOQUE SUAS CHAVES AQUI
-const SUPABASE_URL = 'SUA_URL_DO_SUPABASE_AQUI'; 
-const SUPABASE_ANON_KEY = 'SUA_KEY_ANON_PUBLIC_AQUI';
+const SUPABASE_URL = 'https://yvktnznpozluqcjtvxeu.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2a3Ruem5wb3psdXFjanR2eGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NDgwNzIsImV4cCI6MjA4MTQyNDA3Mn0.mWaYmPCXNoOElk8gPFMFQnsdC_k75tpWPmjcfwqNMoY';
 
 // Inicializa o cliente apenas se a biblioteca estiver carregada
 let supabase;
