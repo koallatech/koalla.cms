@@ -1,47 +1,58 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Pandda</title>
+    <title>Pandda | Dashboard</title>
     
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <link rel="stylesheet" href="/assets/css/global.css">
 </head>
 <body>
 
     <div id="loading-screen">
-        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #2ecc71; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-        <p style="margin-top: 15px; color: #666;">Carregando sistema...</p>
+        <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#2563eb" stroke-width="4" stroke-dasharray="80" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/>
+            </circle>
+        </svg>
+        <p style="margin-top: 15px; font-weight: 500;">Carregando...</p>
     </div>
 
     <div class="dashboard-container">
         
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>Pandda</h2>
-                <span>IPTV Manager</span>
+                <h2>
+                    <i class="material-icons-round logo-icon">grid_view</i>
+                    <span>Pandda</span>
+                </h2>
             </div>
+            
             <ul class="sidebar-menu">
                 <li>
                     <a href="/pages/dashboard/index.html" class="active">
-                        <i class="material-icons">dashboard</i> Dashboard
+                        <i class="material-icons-round">dashboard</i> 
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <i class="material-icons">people</i> Clientes
+                        <i class="material-icons-round">people</i> 
+                        <span>Clientes</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <i class="material-icons">subscriptions</i> Assinaturas
+                        <i class="material-icons-round">shopping_cart</i> 
+                        <span>Assinaturas</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#">
-                        <i class="material-icons">settings</i> Configurações
+                <li style="margin-top: auto;"> <a href="#">
+                        <i class="material-icons-round">settings</i> 
+                        <span>Configurações</span>
                     </a>
                 </li>
             </ul>
@@ -52,27 +63,43 @@
         <div class="main-content">
             
             <header class="topbar">
-                <div class="toggle-btn" id="menu-toggle">
-                    <i class="material-icons">menu</i>
+                <div class="topbar-left">
+                    <div class="toggle-btn" id="sidebar-toggle" title="Alternar Menu">
+                        <i class="material-icons-round">menu</i>
+                    </div>
                 </div>
                 
-                <div class="user-info">
-                    <span class="user-name">Administrador</span>
-                    <button id="btn-logout">
-                        <i class="material-icons" style="font-size: 16px;">logout</i> Sair
+                <div class="topbar-right">
+                    
+                    <button class="action-btn" id="theme-toggle" title="Alternar Tema">
+                        <i class="material-icons-round" id="theme-icon">dark_mode</i>
+                    </button>
+
+                    <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+
+                    <div class="user-info">
+                        <div class="user-details">
+                            <span class="user-name">Admin</span>
+                            <span class="user-role">Gerente</span>
+                        </div>
+                        <div class="user-avatar">A</div>
+                    </div>
+
+                    <button class="action-btn logout-btn" id="btn-logout" title="Sair do Sistema">
+                        <i class="material-icons-round">logout</i>
                     </button>
                 </div>
             </header>
 
             <main class="page-content">
                 <div class="card">
-                    <h3>Bem-vindo ao Pandda</h3>
-                    <p>Seu sistema de gerenciamento está pronto.</p>
+                    <h3>Bem-vindo ao Pandda 2.0</h3>
+                    <p>O sistema foi atualizado com um design moderno, suporte a modo escuro e melhor usabilidade.</p>
                 </div>
 
                 <div class="card">
-                    <h3>Status do Sistema</h3>
-                    <p>Sidebar responsiva ativada.</p>
+                    <h3>Estatísticas Rápidas</h3>
+                    <p>Conteúdo do painel virá aqui.</p>
                 </div>
             </main>
         </div>
@@ -82,50 +109,69 @@
     <script src="/assets/js/supabase-client.js"></script>
 
     <script>
-        /* ==================================
-           LÓGICA DO MENU MOBILE
-           ================================== */
-        const btnToggle = document.getElementById('menu-toggle');
-        const sidebar = document.querySelector('.sidebar');
+        // ==========================================
+        // 1. GERENCIAMENTO DE TEMA (DARK/LIGHT)
+        // ==========================================
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+
+        // Verifica preferência salva
+        const savedTheme = localStorage.getItem('pandda-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('pandda-theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            themeIcon.innerText = theme === 'light' ? 'dark_mode' : 'light_mode';
+        }
+
+        // ==========================================
+        // 2. SIDEBAR (COLLAPSE DESKTOP & MOBILE)
+        // ==========================================
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
+        const body = document.body;
 
-        // Função para abrir/fechar
-        function toggleMenu() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
+        sidebarToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            if (window.innerWidth > 768) {
+                // Modo Desktop: Colapsar/Expandir
+                body.classList.toggle('collapsed');
+            } else {
+                // Modo Mobile: Abrir/Fechar Off-canvas
+                sidebar.classList.toggle('mobile-active');
+                overlay.classList.toggle('active');
+            }
+        });
 
-        // 1. Clique no botão hambúrguer
-        if (btnToggle) {
-            btnToggle.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita bugs de clique duplo
-                toggleMenu();
-            });
-        }
+        // Fechar ao clicar no overlay (Mobile)
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-active');
+            overlay.classList.remove('active');
+        });
 
-        // 2. Clique na parte escura (Overlay) para fechar
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-        }
-
-        /* ==================================
-           LÓGICA DE LOGOUT
-           ================================== */
+        // ==========================================
+        // 3. LOGOUT
+        // ==========================================
         const btnLogout = document.getElementById('btn-logout');
-        
         if (btnLogout) {
             btnLogout.addEventListener('click', async () => {
-                console.log("Saindo...");
-                const { error } = await window.supabaseClient.auth.signOut();
-                
-                // Limpeza forçada
-                localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
-                
-                // Redireciona para o login
-                window.location.href = '/pages/login/index.html';
+                if(confirm("Deseja realmente sair?")) {
+                    await window.supabaseClient.auth.signOut();
+                    localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
+                    window.location.href = '/pages/login/index.html';
+                }
             });
         }
     </script>
