@@ -1,69 +1,44 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Pandda</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <link rel="stylesheet" href="../../assets/css/global.css">
-    
-    <link rel="stylesheet" href="./style.css">
-
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-</head>
+    <title>Login - Koalla</title>
+    </head>
 <body>
 
     <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="logo">
-                    <i class="ph ph-television-simple"></i>
-                </div>
-                <h2>Bem-vindo ao Pandda</h2>
-                <p>Faça login para gerenciar suas assinaturas</p>
-            </div>
-
-            <form id="login-form">
-                <div class="input-group">
-                    <label for="email">E-mail</label>
-                    <div class="input-wrapper">
-                        <i class="ph ph-envelope"></i>
-                        <input type="email" id="email" placeholder="admin@pandda.com" required>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="password">Senha</label>
-                    <div class="input-wrapper">
-                        <i class="ph ph-lock"></i>
-                        <input type="password" id="password" placeholder="••••••••" required>
-                        <button type="button" id="toggle-pass" tabindex="-1">
-                            <i class="ph ph-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="error-message" class="error-message" style="display: none;">
-                    <i class="ph ph-warning-circle"></i> <span>Credenciais inválidas</span>
-                </div>
-
-                <button type="submit" class="btn-login" id="btn-submit">
-                    Entrar no Sistema
-                </button>
-            </form>
-
-            <div class="login-footer">
-                <p>Esqueceu a senha? Contate o suporte.</p>
-            </div>
-        </div>
+        <h1>Login Koalla</h1>
+        <input type="email" id="email" placeholder="Seu e-mail">
+        <input type="password" id="password" placeholder="Sua senha">
+        <button id="btn-login">Entrar</button>
     </div>
 
-    <script src="/assets/js/supabase-client.js"></script>
-    
-    <script src="./script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="/assets/js/supabase-client.js"></script>
+
+    <script>
+        // Função simples para logar
+        async function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Erro ao logar: " + error.message);
+            } else {
+                // O redirecionamento será feito automaticamente pelo onAuthStateChange no outro arquivo
+                console.log("Login realizado com sucesso!");
+            }
+        }
+
+        // Adiciona evento de click ao botão
+        document.getElementById('btn-login').addEventListener('click', fazerLogin);
+    </script>
 </body>
 </html>
