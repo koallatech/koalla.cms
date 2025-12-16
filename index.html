@@ -27,20 +27,16 @@
 
     <script>
         async function checkSession() {
-            // Garante que o sb (Supabase) foi carregado
             if (!window.sb) {
-                console.error("Supabase não inicializado.");
+                console.error("Supabase não inicializado. Verifique o caminho do script.");
                 return;
             }
 
-            // Verifica sessão atual
             const { data: { session } } = await window.sb.auth.getSession();
 
             if (session) {
-                // Usuário logado -> Vai para o Dashboard
                 window.location.href = './pages/dashboard/index.html';
             } else {
-                // Ninguém logado -> Vai para o Login
                 window.location.href = './pages/login/index.html';
             }
         }
