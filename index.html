@@ -1,47 +1,62 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carregando Pandda...</title>
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
-    <script src="/assets/js/supabase-client.js"></script>
-
+    <title>Dashboard - Pandda</title>
     <style>
-        body {
-            background-color: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
-            color: #6b7280;
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { margin: 0; color: #333; }
+        .content { margin-top: 20px; padding: 20px; background: white; border-radius: 8px; }
+        
+        /* Botão de Sair */
+        #btn-logout {
+            background-color: #dc3545; /* Vermelho */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
         }
+        #btn-logout:hover { background-color: #c82333; }
     </style>
 </head>
 <body>
-    <p>Verificando credenciais...</p>
+
+    <header>
+        <h1>Pandda Dashboard</h1>
+        <button id="btn-logout">Sair do Sistema</button>
+    </header>
+
+    <div class="content">
+        <h2>Bem-vindo!</h2>
+        <p>Você está logado no sistema.</p>
+        <p>Aqui entrará sua tabela de clientes IPTV futuramente.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="/assets/js/supabase-client.js"></script>
 
     <script>
-        async function checkSession() {
-            if (!window.sb) {
-                console.error("Supabase não inicializado. Verifique o caminho do script.");
-                return;
-            }
+        const btnLogout = document.getElementById('btn-logout');
 
-            const { data: { session } } = await window.sb.auth.getSession();
-
-            if (session) {
-                window.location.href = './pages/dashboard/index.html';
-            } else {
-                window.location.href = './pages/login/index.html';
-            }
+        if (btnLogout) {
+            btnLogout.addEventListener('click', async () => {
+                // Usa o cliente global para deslogar
+                const { error } = await window.supabaseClient.auth.signOut();
+                
+                if (error) {
+                    console.error("Erro ao sair:", error);
+                } else {
+                    // O redirecionamento para o login acontece automaticamente 
+                    // porque o supabase-client.js detecta o evento 'SIGNED_OUT'
+                    console.log("Deslogado com sucesso.");
+                }
+            });
         }
-
-        document.addEventListener('DOMContentLoaded', checkSession);
     </script>
+
 </body>
 </html>
