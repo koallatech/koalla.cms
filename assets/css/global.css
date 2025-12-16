@@ -1,0 +1,84 @@
+/* assets/css/global.css */
+:root {
+    /* Cores Light Mode (Padrão) */
+    --bg-body: #f3f4f6;
+    --bg-card: #ffffff;
+    --bg-sidebar: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --primary-color: #6366f1; /* Indigo moderno */
+    --primary-hover: #4f46e5;
+    --danger-color: #ef4444;
+    --success-color: #10b981;
+
+    /* Tamanhos da Sidebar */
+    --sidebar-width: 260px;
+    --topbar-height: 64px;
+}
+
+/* Variáveis Dark Mode */
+body.dark-mode {
+    --bg-body: #0f172a;       /* Slate 900 */
+    --bg-card: #1e293b;       /* Slate 800 */
+    --bg-sidebar: #1e293b;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --border-color: #334155;
+}
+
+/* Reset Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif; /* Fonte moderna */
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Layout Grid (Desktop) */
+.app-layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+}
+
+/* Área de Conteúdo Principal */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.page-content {
+    padding: 2rem;
+    margin-top: var(--topbar-height);
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr; /* Sidebar some */
+    }
+    
+    /* Quando ativo no mobile, a sidebar vira um overlay */
+    #sidebar-container.active {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 50;
+        width: var(--sidebar-width);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    }
+    
+    #sidebar-container {
+        display: none; /* Oculto por padrão no mobile */
+    }
+}
