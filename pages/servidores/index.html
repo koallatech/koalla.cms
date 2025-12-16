@@ -61,14 +61,29 @@
             
             <header class="topbar">
                 <div class="topbar-left">
-                    <div class="toggle-btn" id="sidebar-toggle">
+                    <div class="toggle-btn" id="sidebar-toggle" title="Alternar Menu">
                         <i class="material-icons-round">menu</i>
                     </div>
                     <h2 style="font-size: 18px; font-weight: 600; margin-left: 10px;">Gerenciar Servidores</h2>
                 </div>
                 
                 <div class="topbar-right">
-                    <button class="action-btn logout-btn" id="btn-logout" title="Sair">
+                    
+                    <button class="action-btn" id="theme-toggle" title="Alternar Tema">
+                        <i class="material-icons-round" id="theme-icon">dark_mode</i>
+                    </button>
+
+                    <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+
+                    <div class="user-info">
+                        <div class="user-details">
+                            <span class="user-name">Admin</span>
+                            <span class="user-role">Gerente</span>
+                        </div>
+                        <div class="user-avatar">A</div>
+                    </div>
+
+                    <button class="action-btn logout-btn" id="btn-logout" title="Sair do Sistema">
                         <i class="material-icons-round">logout</i>
                     </button>
                 </div>
@@ -166,7 +181,69 @@
 
     <script>
         // ==========================================
-        // LÓGICA DO UI (Interface)
+        // 1. GERENCIAMENTO DE TEMA & LAYOUT (PADRÃO)
+        // ==========================================
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+
+        // Configura Tema
+        const savedTheme = localStorage.getItem('pandda-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        if(themeIcon) updateThemeIcon(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('pandda-theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+        }
+
+        function updateThemeIcon(theme) {
+            themeIcon.innerText = theme === 'light' ? 'dark_mode' : 'light_mode';
+        }
+
+        // Configura Sidebar (Desktop/Mobile)
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const body = document.body;
+
+        if(sidebarToggle) {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.innerWidth > 768) {
+                    body.classList.toggle('collapsed');
+                } else {
+                    sidebar.classList.toggle('mobile-active');
+                    overlay.classList.toggle('active');
+                }
+            });
+        }
+        if(overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('mobile-active');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // Lógica de Logout
+        const btnLogout = document.getElementById('btn-logout');
+        if(btnLogout) {
+            btnLogout.addEventListener('click', async () => {
+                if(confirm("Sair do sistema?")) {
+                    await window.supabaseClient.auth.signOut();
+                    localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
+                    window.location.href = '/pages/login/index.html';
+                }
+            });
+        }
+
+        // ==========================================
+        // 2. LÓGICA DO CRUD SERVIDORES (ESPECÍFICO)
         // ==========================================
         const modal = document.getElementById('server-modal');
         const form = document.getElementById('server-form');
@@ -176,11 +253,9 @@
             document.getElementById('server-id').value = ''; 
             form.reset(); 
             document.getElementById('modal-title').innerText = "Novo Servidor";
-            
-            // Valores padrão sugeridos
+            // Defaults
             document.getElementById('nome_dns1').value = "Principal";
             document.getElementById('nome_dns2').value = "Secundário";
-
             if(id) loadServerData(id);
         }
 
@@ -188,14 +263,8 @@
             modal.classList.remove('open');
         }
 
-        // ==========================================
-        // LÓGICA DO CRUD (Supabase)
-        // ==========================================
-
-        // 1. LISTAR (Read)
         async function fetchServidores() {
             const tbody = document.getElementById('table-body');
-            
             const { data, error } = await window.supabaseClient
                 .from('servidores')
                 .select('*')
@@ -206,11 +275,10 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Erro ao carregar.</td></tr>';
                 return;
             }
-
             tbody.innerHTML = ''; 
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--text-secondary);">Nenhum servidor encontrado.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px;">Nenhum servidor encontrado.</td></tr>';
                 return;
             }
 
@@ -219,7 +287,6 @@
                     ? `<div><strong style="font-size:12px;">${server.nome_dns2}:</strong><br><span style="font-size:12px; color:var(--text-secondary)">${server.dns2}</span></div>` 
                     : '<span style="color: #ccc; font-size: 12px;">-</span>';
                 
-                // Exibe o Alias se existir, senão mostra um traço ou aviso
                 const aliasDisplay = server.alias 
                     ? `<span style="font-size:12px; color:var(--sidebar-active); font-weight:500;">★ ${server.alias}</span>` 
                     : '<span style="font-size:11px; color:var(--text-secondary); font-style:italic;">Sem alias</span>';
@@ -230,44 +297,31 @@
                         <div style="font-weight: 600; color: var(--text-primary);">${server.nome}</div>
                         ${aliasDisplay}
                     </td>
-                    
                     <td>
                         <strong style="font-size:12px;">${server.nome_dns1}:</strong><br>
                         <span style="font-size:12px; color:var(--text-secondary);">${server.dns1}</span>
                     </td>
-                    
                     <td>${dns2Html}</td>
-                    
                     <td style="text-align: center;"><span class="badge success">Ativo</span></td>
-                    
                     <td style="text-align: right;">
-                        <button class="action-btn" onclick="openModal('${server.id}')" title="Editar" style="display:inline-flex; color: #f59e0b;">
-                            <i class="material-icons-round">edit</i>
-                        </button>
-                        <button class="action-btn" onclick="deleteServer('${server.id}')" title="Excluir" style="display:inline-flex; color: #ef4444;">
-                            <i class="material-icons-round">delete</i>
-                        </button>
+                        <button class="action-btn" onclick="openModal('${server.id}')" title="Editar" style="color: #f59e0b;"><i class="material-icons-round">edit</i></button>
+                        <button class="action-btn" onclick="deleteServer('${server.id}')" title="Excluir" style="color: #ef4444;"><i class="material-icons-round">delete</i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // 2. SALVAR (Create / Update)
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const btnSubmit = form.querySelector('button[type="submit"]');
-            const originalText = btnSubmit.innerText;
             btnSubmit.innerText = "Salvando...";
             btnSubmit.disabled = true;
 
             const id = document.getElementById('server-id').value;
-            
-            // Pega os dados do formulário INCLUINDO O ALIAS
             const payload = {
                 nome: document.getElementById('nome').value,
-                alias: document.getElementById('alias').value, // <--- Novo Campo
+                alias: document.getElementById('alias').value,
                 nome_dns1: document.getElementById('nome_dns1').value,
                 dns1: document.getElementById('dns1').value,
                 nome_dns2: document.getElementById('nome_dns2').value,
@@ -276,100 +330,47 @@
 
             let error;
             if (id) {
-                // Editar
                 const res = await window.supabaseClient.from('servidores').update(payload).eq('id', id);
                 error = res.error;
             } else {
-                // Criar Novo
                 const res = await window.supabaseClient.from('servidores').insert([payload]);
                 error = res.error;
             }
 
             if (error) {
-                alert("Erro ao salvar: " + error.message);
-                btnSubmit.innerText = originalText;
-                btnSubmit.disabled = false;
+                alert("Erro: " + error.message);
             } else {
                 closeModal();
                 fetchServidores();
-                btnSubmit.innerText = originalText;
-                btnSubmit.disabled = false;
             }
+            btnSubmit.innerText = "Salvar Servidor";
+            btnSubmit.disabled = false;
         });
 
-        // 3. CARREGAR DADOS (Para Edição)
         async function loadServerData(id) {
             document.getElementById('modal-title').innerText = "Editar Servidor";
-            
-            const { data, error } = await window.supabaseClient
-                .from('servidores')
-                .select('*')
-                .eq('id', id)
-                .single();
-            
+            const { data } = await window.supabaseClient.from('servidores').select('*').eq('id', id).single();
             if(data) {
                 document.getElementById('server-id').value = data.id;
                 document.getElementById('nome').value = data.nome;
-                document.getElementById('alias').value = data.alias || ''; // <--- Carrega Alias
-                
+                document.getElementById('alias').value = data.alias || '';
                 document.getElementById('nome_dns1').value = data.nome_dns1;
                 document.getElementById('dns1').value = data.dns1;
-                
                 document.getElementById('nome_dns2').value = data.nome_dns2 || '';
                 document.getElementById('dns2').value = data.dns2 || '';
             }
         }
 
-        // 4. EXCLUIR (Delete)
         async function deleteServer(id) {
-            if(confirm("Deseja realmente remover este servidor?")) {
+            if(confirm("Deseja realmente remover?")) {
                 const { error } = await window.supabaseClient.from('servidores').delete().eq('id', id);
-                if (error) {
-                    alert("Erro ao excluir: " + error.message);
-                } else {
-                    fetchServidores();
-                }
+                if (!error) fetchServidores();
             }
         }
 
-        // ==========================================
-        // INICIALIZAÇÃO
-        // ==========================================
+        // Inicializa
         window.onload = () => {
             setTimeout(fetchServidores, 500);
-            
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-
-            if(sidebarToggle) {
-                sidebarToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (window.innerWidth > 768) {
-                        document.body.classList.toggle('collapsed');
-                    } else {
-                        sidebar.classList.toggle('mobile-active');
-                        overlay.classList.toggle('active');
-                    }
-                });
-            }
-            if(overlay) {
-                overlay.addEventListener('click', () => {
-                    sidebar.classList.remove('mobile-active');
-                    overlay.classList.remove('active');
-                });
-            }
-
-            const btnLogout = document.getElementById('btn-logout');
-            if(btnLogout) {
-                btnLogout.addEventListener('click', async () => {
-                    if(confirm("Sair do sistema?")) {
-                        await window.supabaseClient.auth.signOut();
-                        localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
-                        window.location.href = '/pages/login/index.html';
-                    }
-                });
-            }
         };
     </script>
 </body>
