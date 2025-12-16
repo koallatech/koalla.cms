@@ -39,21 +39,30 @@
 
     <script src="/assets/js/supabase-client.js"></script>
 
-    <script>
+    <<script>
         const btnLogout = document.getElementById('btn-logout');
 
         if (btnLogout) {
             btnLogout.addEventListener('click', async () => {
-                // Usa o cliente global para deslogar
+                console.log("Iniciando logout...");
+                
+                // 1. Tenta fazer o logout no servidor do Supabase
                 const { error } = await window.supabaseClient.auth.signOut();
                 
-                if (error) {
-                    console.error("Erro ao sair:", error);
-                } else {
-                    // O redirecionamento para o login acontece automaticamente 
-                    // porque o supabase-client.js detecta o evento 'SIGNED_OUT'
-                    console.log("Deslogado com sucesso.");
-                }
+                if (error) console.error("Aviso do Supabase:", error);
+
+                // 2. LIMPEZA MANUAL FORÇADA (O Segredo está aqui)
+                // O padrão do nome da chave é: sb-<SEU_ID_DO_PROJETO>-auth-token
+                // Seu ID é: yvktnznpozluqcjtvxeu
+                localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
+                
+                // Opção nuclear: Se o acima não funcionar, descomente a linha abaixo para limpar TUDO
+                // localStorage.clear(); 
+
+                console.log("Sessão local destruída.");
+
+                // 3. Redirecionamento Manual
+                window.location.href = '/pages/login/index.html';
             });
         }
     </script>
