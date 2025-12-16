@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicativos | Pandda</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/global.css">
+
+    <style>
+        /* CSS Específico desta página */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            background: var(--bg-body);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .checkbox-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: var(--text-primary); cursor: pointer;
+        }
+        .checkbox-item input { accent-color: var(--sidebar-active); width: 16px; height: 16px; cursor: pointer; }
+
+        /* Badges da Tabela */
+        .plat-badge {
+            display: inline-block; background: #e2e8f0; color: #475569;
+            font-size: 10px; padding: 2px 6px; border-radius: 4px;
+            margin-right: 4px; margin-bottom: 4px; font-weight: 600;
+        }
+        [data-theme="dark"] .plat-badge { background: #334155; color: #cbd5e1; }
+        
+        /* Destaque para Código de Acesso */
+        .access-code-display {
+            font-size: 11px; font-weight: 600; color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1); padding: 2px 6px; border-radius: 4px;
+            display: inline-block; margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 15px;">Carregando...</p>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="material-icons-round logo-icon">grid_view</i><span>Pandda</span></h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/pages/dashboard/index.html"><i class="material-icons-round">dashboard</i> <span>Dashboard</span></a></li>
+                <li><a href="/pages/servidores/index.html"><i class="material-icons-round">dns</i> <span>Servidores</span></a></li>
+                <li><a href="/pages/apps/index.html" class="active"><i class="material-icons-round">android</i> <span>Aplicativos</span></a></li>
+                <li><a href="#"><i class="material-icons-round">people</i> <span>Clientes</span></a></li>
+                <li><a href="#"><i class="material-icons-round">shopping_cart</i> <span>Assinaturas</span></a></li>
+            </ul>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <div class="main-content">
+            
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="toggle-btn" id="sidebar-toggle"><i class="material-icons-round">menu</i></div>
+                    <h2 style="font-size: 18px; font-weight: 600; margin-left: 10px;">Gerenciar Apps</h2>
+                </div>
+                <div class="topbar-right">
+                    <button class="action-btn" id="theme-toggle"><i class="material-icons-round" id="theme-icon">dark_mode</i></button>
+                    <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                    <div class="user-info">
+                        <div class="user-details"><span class="user-name">Admin</span></div>
+                        <div class="user-avatar">A</div>
+                    </div>
+                    <button class="action-btn logout-btn" id="btn-logout"><i class="material-icons-round">logout</i></button>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <div>
+                            <h3>Catálogo de Aplicativos</h3>
+                            <p style="font-size: 13px;">Configure URLs, códigos de loja e compatibilidade.</p>
+                        </div>
+                        <button class="btn-primary" onclick="openModal()">
+                            <i class="material-icons-round">add</i> Novo App
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Aplicativo / Código</th>
+                                    <th>Servidor</th>
+                                    <th>Plataformas</th>
+                                    <th style="text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr><td colspan="4" style="text-align:center;">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="app-modal">
+        <div class="modal" style="max-width: 700px;"> <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Novo Aplicativo</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="app-form">
+                <input type="hidden" id="app-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nome do Aplicativo</label>
+                        <input type="text" id="nome" class="form-control" placeholder="Ex: Pandda Play V2" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Servidor Vinculado</label>
+                        <select id="servidor_id" class="form-control" required>
+                            <option value="">Carregando...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Código de Acesso / DNS (Para Login)</label>
+                    <input type="text" id="codigo_acesso" class="form-control" placeholder="Ex: Código que o cliente digita para entrar">
+                </div>
+
+                <div class="form-section-title">Links de Download (URLs)</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>URL Principal</label>
+                        <input type="url" id="url_download_1" class="form-control" placeholder="http://...">
+                    </div>
+                    <div class="form-group">
+                        <label>URL Secundária</label>
+                        <input type="url" id="url_download_2" class="form-control" placeholder="http://...">
+                    </div>
+                </div>
+
+                <div class="form-section-title">Códigos de Lojas (Ex: Downloader)</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nome da Loja 1</label>
+                        <input type="text" id="store_nome_1" class="form-control" value="Downloader">
+                    </div>
+                    <div class="form-group">
+                        <label>Código Numérico 1</label>
+                        <input type="text" id="store_codigo_1" class="form-control" placeholder="Ex: 589632">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nome da Loja 2</label>
+                        <input type="text" id="store_nome_2" class="form-control" placeholder="Ex: Unlinked">
+                    </div>
+                    <div class="form-group">
+                        <label>Código Numérico 2</label>
+                        <input type="text" id="store_codigo_2" class="form-control" placeholder="Ex: 1234">
+                    </div>
+                </div>
+
+                <div class="form-section-title">Compatibilidade</div>
+                <div class="platform-grid">
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Android Box"> Android Box</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Android TV"> Android TV</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Celular Android"> Celular Android</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Samsung"> Samsung</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="LG WebOS"> LG WebOS</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Roku"> Roku</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Fire Stick"> Fire Stick</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="iOS"> iOS / Apple</label>
+                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Windows"> PC / Web</label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="action-btn" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar App</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/assets/js/supabase-client.js"></script>
+
+    <script>
+        // --- PADRÃO TEMA & SIDEBAR ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('pandda-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        if(themeIcon) themeIcon.innerText = savedTheme === 'light' ? 'dark_mode' : 'light_mode';
+
+        if(themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('pandda-theme', newTheme);
+                themeIcon.innerText = newTheme === 'light' ? 'dark_mode' : 'light_mode';
+            });
+        }
+        
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if(sidebarToggle) {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.innerWidth > 768) document.body.classList.toggle('collapsed');
+                else { sidebar.classList.toggle('mobile-active'); overlay.classList.toggle('active'); }
+            });
+        }
+        if(overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('mobile-active'); overlay.classList.remove('active'); });
+        
+        const btnLogout = document.getElementById('btn-logout');
+        if(btnLogout) btnLogout.addEventListener('click', async () => { if(confirm("Sair?")) { await window.supabaseClient.auth.signOut(); localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token'); window.location.href='/pages/login/index.html'; }});
+
+        // --- CRUD APPS ---
+        const modal = document.getElementById('app-modal');
+        const form = document.getElementById('app-form');
+        const selectServidor = document.getElementById('servidor_id');
+
+        // 1. SELECT DE SERVIDORES
+        async function loadServidoresSelect() {
+            const { data } = await window.supabaseClient.from('servidores').select('id, nome, alias').order('nome');
+            selectServidor.innerHTML = '<option value="">Selecione...</option>';
+            if(data) {
+                data.forEach(srv => {
+                    const opt = document.createElement('option');
+                    opt.value = srv.id;
+                    // Mostra o nome e o alias se tiver
+                    opt.innerText = srv.nome + (srv.alias ? ` (${srv.alias})` : '');
+                    selectServidor.appendChild(opt);
+                });
+            }
+        }
+
+        // 2. LISTAR
+        async function fetchApps() {
+            const tbody = document.getElementById('table-body');
+            
+            const { data, error } = await window.supabaseClient
+                .from('apps')
+                .select('*, servidores(nome)')
+                .order('created_at', { ascending: false });
+
+            if (error) { tbody.innerHTML = '<tr><td colspan="4">Erro...</td></tr>'; return; }
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Nenhum app encontrado.</td></tr>';
+                return;
+            }
+
+            data.forEach(app => {
+                // Monta badges
+                let badges = '';
+                if(app.plataformas) app.plataformas.forEach(p => badges += `<span class="plat-badge">${p}</span>`);
+                else badges = '<small>-</small>';
+
+                // Monta display do código de acesso
+                const codeHtml = app.codigo_acesso 
+                    ? `<div class="access-code-display">Cód: ${app.codigo_acesso}</div>` 
+                    : '';
+
+                const nomeSrv = app.servidores ? app.servidores.nome : '<span style="color:red">Srv Removido</span>';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight:600;">${app.nome}</div>
+                        ${codeHtml}
+                    </td>
+                    <td>${nomeSrv}</td>
+                    <td>${badges}</td>
+                    <td style="text-align: right;">
+                        <button class="action-btn" onclick="openModal('${app.id}')" style="color: #f59e0b;"><i class="material-icons-round">edit</i></button>
+                        <button class="action-btn" onclick="deleteApp('${app.id}')" style="color: #ef4444;"><i class="material-icons-round">delete</i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. ABRIR/FECHAR MODAL
+        window.openModal = async function(id = null) {
+            modal.classList.add('open');
+            document.getElementById('app-id').value = '';
+            form.reset();
+            document.getElementById('modal-title').innerText = "Novo Aplicativo";
+            
+            // Valores Default
+            document.getElementById('store_nome_1').value = "Downloader";
+
+            await loadServidoresSelect();
+            if(id) loadAppData(id);
+        }
+
+        window.closeModal = function() { modal.classList.remove('open'); }
+
+        // 4. SALVAR
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            btn.innerText = 'Salvando...'; btn.disabled = true;
+
+            const id = document.getElementById('app-id').value;
+            
+            // Pega checkboxes
+            const checked = Array.from(document.querySelectorAll('input[name="plataforma"]:checked')).map(cb => cb.value);
+
+            const payload = {
+                nome: document.getElementById('nome').value,
+                servidor_id: document.getElementById('servidor_id').value,
+                codigo_acesso: document.getElementById('codigo_acesso').value,
+                
+                url_download_1: document.getElementById('url_download_1').value,
+                url_download_2: document.getElementById('url_download_2').value,
+                
+                store_nome_1: document.getElementById('store_nome_1').value,
+                store_codigo_1: document.getElementById('store_codigo_1').value,
+                
+                store_nome_2: document.getElementById('store_nome_2').value,
+                store_codigo_2: document.getElementById('store_codigo_2').value,
+                
+                plataformas: checked
+            };
+
+            let error;
+            if(id) {
+                const res = await window.supabaseClient.from('apps').update(payload).eq('id', id);
+                error = res.error;
+            } else {
+                const res = await window.supabaseClient.from('apps').insert([payload]);
+                error = res.error;
+            }
+
+            if(error) alert("Erro: " + error.message);
+            else { closeModal(); fetchApps(); }
+            btn.innerText = 'Salvar App'; btn.disabled = false;
+        });
+
+        // 5. CARREGAR DADOS
+        async function loadAppData(id) {
+            document.getElementById('modal-title').innerText = "Editar Aplicativo";
+            const { data } = await window.supabaseClient.from('apps').select('*').eq('id', id).single();
+            if(data) {
+                document.getElementById('app-id').value = data.id;
+                document.getElementById('nome').value = data.nome;
+                document.getElementById('servidor_id').value = data.servidor_id;
+                document.getElementById('codigo_acesso').value = data.codigo_acesso || '';
+                
+                document.getElementById('url_download_1').value = data.url_download_1 || '';
+                document.getElementById('url_download_2').value = data.url_download_2 || '';
+                
+                document.getElementById('store_nome_1').value = data.store_nome_1 || 'Downloader';
+                document.getElementById('store_codigo_1').value = data.store_codigo_1 || '';
+                
+                document.getElementById('store_nome_2').value = data.store_nome_2 || '';
+                document.getElementById('store_codigo_2').value = data.store_codigo_2 || '';
+
+                if(data.plataformas) {
+                    document.querySelectorAll('input[name="plataforma"]').forEach(cb => {
+                        cb.checked = data.plataformas.includes(cb.value);
+                    });
+                }
+            }
+        }
+
+        // 6. DELETAR
+        window.deleteApp = async function(id) {
+            if(confirm("Excluir este app?")) {
+                await window.supabaseClient.from('apps').delete().eq('id', id);
+                fetchApps();
+            }
+        }
+
+        // INIT
+        window.onload = () => { setTimeout(fetchApps, 500); };
+    </script>
+</body>
+</html>
