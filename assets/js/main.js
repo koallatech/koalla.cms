@@ -9,7 +9,6 @@ async function loadComponents() {
     // Carrega Sidebar
     const sidebarContainer = document.getElementById("sidebar-container");
     if (sidebarContainer) {
-        // Simulação do HTML da sidebar (em produção você usaria fetch para um arquivo .html separado)
         sidebarContainer.innerHTML = getSidebarHTML(); 
     }
 
@@ -17,7 +16,8 @@ async function loadComponents() {
     const topbarContainer = document.getElementById("topbar-container");
     if (topbarContainer) {
         topbarContainer.innerHTML = getTopbarHTML();
-        setupTopbarEvents(); // Ativa botões da topbar após carregar
+        // Recarrega ícones (Phosphor) caso necessário
+        if (window.PhosphorIcons) window.PhosphorIcons.replace();
     }
     
     highlightCurrentPage();
@@ -25,7 +25,7 @@ async function loadComponents() {
 
 function getSidebarHTML() {
     return `
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo-area">
                 <i class="ph ph-television-simple"></i>
                 <span>Pandda</span>
@@ -57,19 +57,47 @@ function getSidebarHTML() {
 function getTopbarHTML() {
     return `
         <header class="topbar">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()">
-                <i class="ph ph-list"></i>
-            </button>
-            <h2 id="page-title">Painel</h2>
+            <div style="display:flex; align-items:center;">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                    <i class="ph ph-list"></i>
+                </button>
+                <h2 id="page-title" style="margin-left: 10px;">Painel</h2>
+            </div>
+            
             <div class="user-info">
-                <button class="theme-toggle" onclick="toggleTheme()">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Alternar Tema">
                     <i class="ph ph-moon" id="theme-icon"></i>
                 </button>
-                <span>Admin</span>
-                <i class="ph ph-user-circle" style="font-size: 24px;"></i>
+                
+                <button class="theme-toggle" onclick="handleLogout()" title="Sair do Sistema" style="color: var(--danger-color, #ef4444);">
+                    <i class="ph ph-sign-out"></i>
+                </button>
+                
+                <div class="user-profile" style="display: flex; align-items: center; gap: 8px;">
+                    <span class="user-name" style="font-size: 0.9rem; font-weight: 600;">Admin</span>
+                    <i class="ph ph-user-circle" style="font-size: 24px;"></i>
+                </div>
             </div>
         </header>
     `;
+}
+
+// --- Lógica de Logout (NOVO) ---
+async function handleLogout() {
+    if (!window.sb) return;
+
+    const confirmacao = confirm("Deseja realmente sair do sistema?");
+    if (confirmacao) {
+        try {
+            const { error } = await window.sb.auth.signOut();
+            if (error) throw error;
+            
+            // Redireciona para login após sair
+            window.location.href = '../../pages/login/index.html';
+        } catch (err) {
+            alert("Erro ao sair: " + err.message);
+        }
+    }
 }
 
 // --- Lógica de Tema ---
@@ -99,22 +127,23 @@ function updateThemeIcon(isDark) {
 
 // --- Responsividade Mobile ---
 function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar-container');
-    sidebar.classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.overlay-mobile'); // Se houver overlay
+    if(sidebar) sidebar.classList.toggle('active');
 }
 
-// Marca o link ativo na sidebar baseado na URL atual
+// Marca link ativo
 function highlightCurrentPage() {
     const path = window.location.pathname;
-    const links = document.querySelectorAll('.nav-link');
-    
-    links.forEach(link => {
-        if (path.includes(link.getAttribute('href').replace('..', ''))) {
-            link.classList.add('active');
-        }
-    });
-}
-
-function setupTopbarEvents() {
-    // Reatribui eventos se necessário após inserção no DOM
+    // Pequeno delay para garantir que o HTML foi injetado
+    setTimeout(() => {
+        const links = document.querySelectorAll('.nav-link');
+        links.forEach(link => {
+            const href = link.getAttribute('href').replace('..', ''); 
+            // Lógica simples de match da URL
+            if (path.includes(href.split('/')[2])) { 
+                link.classList.add('active');
+            }
+        });
+    }, 50);
 }
