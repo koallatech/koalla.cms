@@ -1,48 +1,59 @@
-// 1. Configuração do Supabase (Chaves Fornecidas)
+// 1. Configuração do Supabase
 const SUPABASE_URL = 'https://yvktnznpozluqcjtvxeu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2a3Ruem5wb3psdXFjanR2eGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4NDgwNzIsImV4cCI6MjA4MTQyNDA3Mn0.mWaYmPCXNoOElk8gPFMFQnsdC_k75tpWPmjcfwqNMoY';
 
-// Inicializa o cliente e o coloca no escopo global (window)
-// Isso permite que o HTML acesse o 'supabaseClient' sem erros
+// Inicializa o cliente globalmente
 window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-console.log("Supabase Client inicializado com sucesso.");
+console.log("Supabase Client ativo.");
 
-// 2. Lógica de Proteção de Rotas (Anti-Loop e Auth Guard)
 async function gerenciarAutenticacao() {
-    // Verifica a sessão atual
+    // Busca elemento de loading
+    const loadingScreen = document.getElementById('loading-screen');
+    
+    // Verifica sessão
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     
     const caminhoAtual = window.location.pathname;
-    // Verifica se estamos na pasta de login
-    const estouNoLogin = caminhoAtual.includes('/login');
+    const estouNoLogin = caminhoAtual.includes('/pages/login');
 
-    // CENÁRIO A: Usuário NÃO logado e tenta acessar página interna
-    // Ação: Manda para o Login
+    // --- LÓGICA DE BLOQUEIO ---
+
+    // 1. Usuário NÃO logado tentando acessar área restrita
     if (!session && !estouNoLogin) {
-        console.log("Acesso restrito. Redirecionando para login...");
+        console.log("Acesso negado. Redirecionando para login...");
         window.location.href = '/pages/login/index.html'; 
-        return;
+        // NÃO removemos o loadingScreen aqui (o usuário não deve ver a home)
+        return; 
     }
 
-    // CENÁRIO B: Usuário JÁ logado e tenta acessar a tela de Login
-    // Ação: Manda para a Home (Dashboard)
+    // 2. Usuário JÁ logado tentando acessar a tela de login
     if (session && estouNoLogin) {
-        console.log("Usuário já logado. Redirecionando para home...");
+        console.log("Já logado. Redirecionando para dashboard...");
         window.location.href = '/index.html';
+        // NÃO removemos o loadingScreen aqui (o usuário não deve ver o form de login)
         return;
     }
 
-    console.log("Rota permitida: " + caminhoAtual);
+    // --- LIBERA O ACESSO ---
+    
+    console.log("Acesso permitido.");
+    
+    // Se chegou aqui, está na página certa. Removemos a cortina.
+    if (loadingScreen) {
+        loadingScreen.style.opacity = '0'; // Efeito visual de fade-out
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 300); // Espera o fade terminar
+    }
 }
 
-// 3. Monitoramento de Login/Logout em tempo real
+// Monitora Logout em tempo real
 window.supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
-        // Se deslogou, força ir para o login
         window.location.href = '/pages/login/index.html';
     }
 });
 
-// Executa a verificação ao carregar o script
+// Executa
 gerenciarAutenticacao();

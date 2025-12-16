@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Pandda</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; margin: 0; }
         header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         h1 { margin: 0; color: #333; }
         .content { margin-top: 20px; padding: 20px; background: white; border-radius: 8px; }
         
-        /* Botão de Sair */
         #btn-logout {
-            background-color: #dc3545; /* Vermelho */
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
+            background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
         #btn-logout:hover { background-color: #c82333; }
     </style>
 </head>
 <body>
+
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #ffffff; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.3s ease;">
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 15px; font-family: sans-serif; color: #666;">Carregando...</p>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    </div>
 
     <header>
         <h1>Pandda Dashboard</h1>
@@ -30,42 +30,30 @@
     </header>
 
     <div class="content">
-        <h2>Bem-vindo!</h2>
-        <p>Você está logado no sistema.</p>
-        <p>Aqui entrará sua tabela de clientes IPTV futuramente.</p>
+        <h2>Bem-vindo ao Pandda!</h2>
+        <p>Você está autenticado com segurança.</p>
+        <hr>
+        <p><em>Sua tabela de clientes será carregada aqui.</em></p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script src="/assets/js/supabase-client.js"></script>
 
-    <<script>
+    <script>
+        // Lógica do Botão Sair
         const btnLogout = document.getElementById('btn-logout');
-
         if (btnLogout) {
             btnLogout.addEventListener('click', async () => {
-                console.log("Iniciando logout...");
-                
-                // 1. Tenta fazer o logout no servidor do Supabase
+                console.log("Saindo...");
                 const { error } = await window.supabaseClient.auth.signOut();
                 
-                if (error) console.error("Aviso do Supabase:", error);
-
-                // 2. LIMPEZA MANUAL FORÇADA (O Segredo está aqui)
-                // O padrão do nome da chave é: sb-<SEU_ID_DO_PROJETO>-auth-token
-                // Seu ID é: yvktnznpozluqcjtvxeu
+                // Limpeza forçada do LocalStorage para evitar loop
                 localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
                 
-                // Opção nuclear: Se o acima não funcionar, descomente a linha abaixo para limpar TUDO
-                // localStorage.clear(); 
-
-                console.log("Sessão local destruída.");
-
-                // 3. Redirecionamento Manual
+                // Redirecionamento manual
                 window.location.href = '/pages/login/index.html';
             });
         }
     </script>
-
 </body>
 </html>
