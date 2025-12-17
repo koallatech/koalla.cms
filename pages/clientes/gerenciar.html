@@ -24,6 +24,16 @@
 
         @media (max-width: 900px) { .manager-grid { grid-template-columns: 1fr; } }
     </style>
+    <head>
+    <link rel="stylesheet" href="/assets/css/global.css">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('pandda-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
 </head>
 
 <body data-title="Gerenciar Cliente">

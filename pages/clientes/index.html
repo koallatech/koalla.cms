@@ -42,6 +42,16 @@
             color: var(--text-primary);
         }
     </style>
+    <head>
+    <link rel="stylesheet" href="/assets/css/global.css">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('pandda-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
 </head>
 
 <body data-title="Carteira de Clientes">
