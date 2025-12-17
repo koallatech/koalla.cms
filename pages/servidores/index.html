@@ -7,16 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
-    <head>
-    <link rel="stylesheet" href="/assets/css/global.css">
-
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('pandda-theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-    </script>
-</head>
+    <script>(function(){const s=localStorage.getItem('pandda-theme')||'light';document.documentElement.setAttribute('data-theme',s);})();</script>
 </head>
 <body data-title="Gerenciar Servidores">
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
@@ -60,8 +51,7 @@
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
     <script>
-        const modal = document.getElementById('server-modal');
-        const form = document.getElementById('server-form');
+        const modal = document.getElementById('server-modal'); const form = document.getElementById('server-form');
         async function fetchServidores() {
             const tbody = document.getElementById('table-body');
             const { data, error } = await window.supabaseClient.from('servidores').select('*').order('created_at', { ascending: false });
@@ -70,8 +60,7 @@
                 const alias = s.alias ? `<span style="font-size:11px; color:var(--sidebar-active);">★ ${s.alias}</span>` : '';
                 const rowClass = s.ativo ? '' : 'class="row-disabled"';
                 const toggle = `<label class="switch-sm"><input type="checkbox" ${s.ativo?'checked':''} onchange="toggleAtivo('${s.id}', this.checked)"><span class="slider-sm"></span></label>`;
-                
-                tbody.innerHTML += `<tr ${rowClass}><td><div style="font-weight:600;">${s.nome}</div>${alias}</td><td><strong style="font-size:12px;">${s.nome_dns1}:</strong><br><span style="font-size:12px;">${s.dns1}</span></td><td><strong style="font-size:12px;">${s.nome_dns2}:</strong><br><span style="font-size:12px;">${s.dns2||'-'}</span></td><td style="text-align:center;">${toggle}</td><td style="text-align:right;"><button class="action-btn" onclick="openModal('${s.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
+                tbody.innerHTML += `<tr ${rowClass}><td data-label="Identificação"><div style="font-weight:600; font-size:15px;">${s.nome}</div>${alias}</td><td data-label="DNS Principal"><strong style="font-size:11px; color:#666;">${s.nome_dns1}:</strong><div style="font-size:13px;">${s.dns1}</div></td><td data-label="DNS Secundário"><strong style="font-size:11px; color:#666;">${s.nome_dns2}:</strong><div style="font-size:13px;">${s.dns2||'-'}</div></td><td data-label="Ativo?">${toggle}</td><td data-label="Ações" style="text-align:right;"><button class="action-btn" onclick="openModal('${s.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
             });
             document.getElementById('loading-screen').style.display = 'none';
         }

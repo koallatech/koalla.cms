@@ -7,17 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
+    <script>(function(){const s=localStorage.getItem('pandda-theme')||'light';document.documentElement.setAttribute('data-theme',s);})();</script>
     <style>.platform-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); } .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); cursor: pointer; } .plat-badge { display: inline-block; background: #e2e8f0; color: #475569; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 4px; margin-bottom: 4px; font-weight: 600; }</style>
-    <head>
-    <link rel="stylesheet" href="/assets/css/global.css">
-
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('pandda-theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-    </script>
-</head>
 </head>
 <body data-title="Gerenciar Aplicativos">
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
@@ -88,7 +79,7 @@
                 const rowClass = app.ativo ? '' : 'class="row-disabled"';
                 const toggle = `<label class="switch-sm"><input type="checkbox" ${app.ativo?'checked':''} onchange="toggleAtivo('${app.id}', this.checked)"><span class="slider-sm"></span></label>`;
                 
-                tbody.innerHTML += `<tr ${rowClass}><td><div style="font-weight:600;">${app.nome}</div>${code}</td><td>${app.servidores?.nome || '<span style="color:red">Removido</span>'}</td><td>${badges}</td><td>${toggle}</td><td style="text-align:right;"><button class="action-btn" onclick="openModal('${app.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
+                tbody.innerHTML += `<tr ${rowClass}><td data-label="App"><div style="font-weight:600; font-size:15px;">${app.nome}</div>${code}</td><td data-label="Servidor">${app.servidores?.nome || '<span style="color:red">Removido</span>'}</td><td data-label="Plataformas">${badges}</td><td data-label="Ativo?">${toggle}</td><td data-label="Ações" style="text-align:right;"><button class="action-btn" onclick="openModal('${app.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
             });
             document.getElementById('loading-screen').style.display = 'none';
         }

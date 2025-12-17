@@ -7,267 +7,78 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
-    
-    <style>
-        /* Estilo para o Input de Telefone Inteligente */
-        .phone-group {
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--bg-body);
-            overflow: hidden;
-        }
-        
-        .phone-group select {
-            border: none;
-            background: rgba(0,0,0,0.03);
-            padding: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            border-right: 1px solid var(--border-color);
-            cursor: pointer;
-            outline: none;
-            width: 80px; /* Largura fixa pro código */
-        }
-
-        .phone-group input {
-            border: none;
-            flex: 1;
-            padding: 10px 12px;
-            font-size: 14px;
-            background: transparent;
-            outline: none;
-            color: var(--text-primary);
-        }
-    </style>
-    <head>
-    <link rel="stylesheet" href="/assets/css/global.css">
-
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('pandda-theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-    </script>
+    <script>(function(){const s=localStorage.getItem('pandda-theme')||'light';document.documentElement.setAttribute('data-theme',s);})();</script>
 </head>
-</head>
-
 <body data-title="Carteira de Clientes">
-
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
-
     <div class="dashboard-container">
-        <div id="sidebar-container"></div> <div class="main-content">
-            <div id="topbar-container"></div> <main class="page-content">
+        <div id="sidebar-container"></div>
+        <div class="main-content">
+            <div id="topbar-container"></div>
+            <main class="page-content">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <div>
-                            <h3>Meus Clientes</h3>
-                            <p style="font-size: 13px;">Visão geral de vencimentos.</p>
-                        </div>
-                        <button class="btn-primary" onclick="openModalQuick()">
-                            <i class="material-icons-round">person_add</i> Novo Cliente
-                        </button>
+                        <div><h3>Meus Clientes</h3><p style="font-size: 13px;">Visão geral de vencimentos.</p></div>
+                        <button class="btn-primary" onclick="openModalQuick()"><i class="material-icons-round">person_add</i> Novo Cliente</button>
                     </div>
-
                     <div style="margin-bottom: 15px;">
                         <input type="text" id="search-input" class="form-control" placeholder="Buscar por nome ou whatsapp..." onkeyup="filtrarTabela()">
                     </div>
-
                     <div class="table-container">
                         <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Vencimento</th>
-                                    <th>Status</th>
-                                    <th>Telas</th>
-                                    <th style="text-align: right;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>
-                            </tbody>
+                            <thead><tr><th>Cliente</th><th>Vencimento</th><th>Status</th><th>Telas</th><th style="text-align: right;">Ações</th></tr></thead>
+                            <tbody id="table-body"><tr><td colspan="5" style="text-align:center;">Carregando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
             </main>
         </div>
     </div>
-
     <div class="modal-overlay" id="quick-client-modal">
         <div class="modal" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Adicionar Cliente</h3>
-                <button class="close-modal" onclick="closeModalQuick()">&times;</button>
-            </div>
-            
+            <div class="modal-header"><h3 class="modal-title">Adicionar Cliente</h3><button class="close-modal" onclick="closeModalQuick()">&times;</button></div>
             <form id="quick-form">
-                <div class="form-group">
-                    <label>Nome do Cliente</label>
-                    <input type="text" id="quick-nome" class="form-control" placeholder="Ex: João Silva" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>WhatsApp</label>
-                    <div class="phone-group">
-                        <select id="quick-ddi">
-                            <option value="55">+55</option> <option value="1">+1</option>
-                            <option value="351">+351</option>
-                            <option value="44">+44</option>
-                            <option value="">Outro</option>
-                        </select>
-                        <input type="tel" id="quick-phone" placeholder="(11) 99999-9999" required oninput="mascaraTelefone(this)" onpaste="handlePaste(event)">
-                    </div>
-                    <small style="font-size: 11px; color: var(--text-secondary);">O código do país será salvo junto com o número.</small>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="action-btn" onclick="closeModalQuick()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Criar e Configurar</button>
-                </div>
+                <div class="form-group"><label>Nome do Cliente</label><input type="text" id="quick-nome" class="form-control" placeholder="Ex: João Silva" required></div>
+                <div class="form-group"><label>WhatsApp</label><div class="phone-group"><select id="quick-ddi"><option value="55">+55</option><option value="1">+1</option><option value="351">+351</option><option value="">Outro</option></select><input type="tel" id="quick-phone" placeholder="(11) 99999-9999" required oninput="mascaraTelefone(this)" onpaste="handlePaste(event)"></div><small style="font-size: 11px; color: var(--text-secondary);">O código do país será salvo junto com o número.</small></div>
+                <div class="form-actions"><button type="button" class="action-btn" onclick="closeModalQuick()">Cancelar</button><button type="submit" class="btn-primary">Criar e Configurar</button></div>
             </form>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
-
     <script>
-        // --- LÓGICA DE TELEFONE INTELIGENTE ---
-        
-        // 1. Mascara Visual enquanto digita
-        function mascaraTelefone(input) {
-            let v = input.value.replace(/\D/g, ""); // Remove tudo que não é dígito
-            
-            // Se o usuário tentar digitar o 55 no começo manualmente, a gente ignora/remove para não duplicar
-            // (Opcional, mas ajuda a manter limpo)
-            
-            if (v.length > 11) v = v.substring(0, 11); // Limita tamanho BR
-            
-            // Mascara (XX) XXXXX-XXXX
-            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-            v = v.replace(/(\d)(\d{4})$/, "$1-$2");
-            
-            input.value = v;
-        }
-
-        // 2. Lógica ao Colar (Paste)
-        function handlePaste(e) {
-            e.preventDefault();
-            let pastedData = (e.clipboardData || window.clipboardData).getData('text');
-            
-            // Remove caracteres não numéricos (+, -, espaço, parenteses)
-            let clean = pastedData.replace(/\D/g, "");
-
-            // Verifica se começa com 55 (Brasil)
-            if (clean.startsWith("55") && clean.length > 11) {
-                // Remove o 55 do número, pois ele já está no Select
-                clean = clean.substring(2);
-                document.getElementById('quick-ddi').value = "55";
-            }
-            
-            // Aplica no input e roda a máscara
-            const input = document.getElementById('quick-phone');
-            input.value = clean;
-            mascaraTelefone(input);
-        }
-
-        // --- LÓGICA DA PÁGINA ---
+        function mascaraTelefone(input) { let v = input.value.replace(/\D/g, ""); if (v.length > 11) v = v.substring(0, 11); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); v = v.replace(/(\d)(\d{4})$/, "$1-$2"); input.value = v; }
+        function handlePaste(e) { e.preventDefault(); let clean = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, ""); if (clean.startsWith("55") && clean.length > 11) { clean = clean.substring(2); document.getElementById('quick-ddi').value = "55"; } const input = document.getElementById('quick-phone'); input.value = clean; mascaraTelefone(input); }
 
         async function fetchClientes() {
             const tbody = document.getElementById('table-body');
-            const { data, error } = await window.supabaseClient
-                .from('clientes')
-                .select('*, assinaturas(data_vencimento, telas_contratadas)')
-                .order('created_at', { ascending: false });
-
-            if (error) return; 
-            tbody.innerHTML = '';
-            
-            if (data.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhum cliente.</td></tr>'; 
-                return; 
-            }
-            
+            const { data, error } = await window.supabaseClient.from('clientes').select('*, assinaturas(data_vencimento, telas_contratadas)').order('created_at', { ascending: false });
+            if (error) return; tbody.innerHTML = '';
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhum cliente.</td></tr>'; return; }
             const hoje = new Date().toISOString().split('T')[0];
-            
             data.forEach(cli => {
-                let statusHtml = '<span class="badge" style="background:#e2e8f0; color:#64748b;">Sem Plano</span>';
-                let vencimento = '-';
-                let telas = '-';
+                let statusHtml = '<span class="badge" style="background:#e2e8f0; color:#64748b;">Sem Plano</span>', vencimento = '-', telas = '-';
+                if (cli.bloqueado) { statusHtml = '<span class="badge danger" style="background: black; color: white;">BLOQUEADO</span>'; } 
+                else { const ass = (cli.assinaturas && cli.assinaturas.length > 0) ? cli.assinaturas[0] : cli.assinaturas; if (ass) { vencimento = ass.data_vencimento.split('-').reverse().join('/'); telas = `${ass.telas_contratadas} tela(s)`; statusHtml = ass.data_vencimento < hoje ? '<span class="badge danger">VENCIDO</span>' : '<span class="badge success">ATIVO</span>'; } }
                 
-                const ass = (cli.assinaturas && cli.assinaturas.length > 0) ? cli.assinaturas[0] : cli.assinaturas;
-
-                if (ass) {
-                    vencimento = ass.data_vencimento.split('-').reverse().join('/');
-                    telas = `${ass.telas_contratadas} tela(s)`;
-                    statusHtml = ass.data_vencimento < hoje ? '<span class="badge danger">VENCIDO</span>' : '<span class="badge success">ATIVO</span>';
-                }
-
                 const tr = document.createElement('tr');
-                // Formata WhatsApp para link (remove caracteres não numericos)
-                const wppLink = cli.whatsapp.replace(/\D/g, "");
-                
-                tr.innerHTML = `
-                    <td>
-                        <div style="font-weight:600;">${cli.nome}</div>
-                        <div style="display:flex; align-items:center; gap:4px; font-size:12px; color:var(--text-secondary);">
-                            <i class="material-icons-round" style="font-size:12px; color:#25D366;">chat</i> ${cli.whatsapp}
-                        </div>
-                    </td>
-                    <td><span style="font-weight:500;">${vencimento}</span></td>
-                    <td>${statusHtml}</td>
-                    <td>${telas}</td>
-                    <td style="text-align: right;">
-                        <button class="btn-primary btn-sm" onclick="gerenciar('${cli.id}')">Gerenciar</button>
-                    </td>
-                `;
+                if(cli.bloqueado) tr.style.opacity = "0.7";
+                tr.innerHTML = `<td data-label="Cliente"><div style="font-weight:600; font-size:15px;">${cli.nome}</div><div style="font-size:13px; color:var(--text-secondary); display:flex; gap:5px; align-items:center;"><i class="material-icons-round" style="font-size:14px; color:#25D366;">chat</i> ${cli.whatsapp}</div></td><td data-label="Vencimento"><span style="font-weight:500;">${vencimento}</span></td><td data-label="Status">${statusHtml}</td><td data-label="Telas">${telas}</td><td data-label="Ações" style="text-align: right;"><button class="btn-primary btn-sm" style="width:auto; display:inline-flex;" onclick="gerenciar('${cli.id}')">Gerenciar</button></td>`;
                 tbody.appendChild(tr);
             });
         }
-
         window.gerenciar = (id) => window.location.href = `/pages/clientes/gerenciar.html?id=${id}`;
-        
         const modalQuick = document.getElementById('quick-client-modal');
         window.openModalQuick = () => { modalQuick.classList.add('open'); document.getElementById('quick-form').reset(); };
         window.closeModalQuick = () => { modalQuick.classList.remove('open'); };
-
-        // SALVAR
         document.getElementById('quick-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const nome = document.getElementById('quick-nome').value;
-            
-            // Pega Código do País e Número Limpo
-            const ddi = document.getElementById('quick-ddi').value;
-            const numeroBruto = document.getElementById('quick-phone').value.replace(/\D/g, ""); // Remove parenteses e traços
-            
-            // Concatena para salvar: Ex: 5511999999999
-            const whatsappFull = ddi + numeroBruto;
-
-            const { data, error } = await window.supabaseClient
-                .from('clientes')
-                .insert([{ nome: nome, whatsapp: whatsappFull }])
-                .select()
-                .single();
-
-            if(error) alert("Erro: " + error.message);
-            else {
-                // Redireciona para gerenciar
-                window.location.href = `/pages/clientes/gerenciar.html?id=${data.id}`;
-            }
+            e.preventDefault(); const nome = document.getElementById('quick-nome').value; const whatsappFull = document.getElementById('quick-ddi').value + document.getElementById('quick-phone').value.replace(/\D/g, "");
+            const { data, error } = await window.supabaseClient.from('clientes').insert([{ nome: nome, whatsapp: whatsappFull }]).select().single();
+            if(error) alert("Erro: " + error.message); else window.location.href = `/pages/clientes/gerenciar.html?id=${data.id}`;
         });
-
-        window.filtrarTabela = () => {
-            const val = document.getElementById('search-input').value.toLowerCase();
-            document.querySelectorAll('tbody tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none');
-        }
-        
+        window.filtrarTabela = () => { const val = document.getElementById('search-input').value.toLowerCase(); document.querySelectorAll('tbody tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none'); }
         window.onload = () => setTimeout(fetchClientes, 500);
     </script>
 </body>
