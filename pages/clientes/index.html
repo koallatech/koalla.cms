@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | Pandda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/global.css">
+</head>
+<body>
+
+    <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header"><h2><i class="material-icons-round logo-icon">grid_view</i><span>Pandda</span></h2></div>
+            <ul class="sidebar-menu">
+                <li><a href="/pages/dashboard/index.html"><i class="material-icons-round">dashboard</i> <span>Dashboard</span></a></li>
+                <li><a href="/pages/servidores/index.html"><i class="material-icons-round">dns</i> <span>Servidores</span></a></li>
+                <li><a href="/pages/apps/index.html"><i class="material-icons-round">android</i> <span>Aplicativos</span></a></li>
+                <li><a href="/pages/planos/index.html"><i class="material-icons-round">payments</i> <span>Planos</span></a></li>
+                <li><a href="/pages/clientes/index.html" class="active"><i class="material-icons-round">people</i> <span>Clientes</span></a></li>
+            </ul>
+        </aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="toggle-btn" id="sidebar-toggle"><i class="material-icons-round">menu</i></div>
+                    <h2 style="font-size: 18px; font-weight: 600; margin-left: 10px;">Carteira de Clientes</h2>
+                </div>
+                <div class="topbar-right">
+                    <button class="action-btn" id="theme-toggle"><i class="material-icons-round" id="theme-icon">dark_mode</i></button>
+                    <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                    <div class="user-info"><span class="user-name">Admin</span></div>
+                    <button class="action-btn logout-btn" id="btn-logout"><i class="material-icons-round">logout</i></button>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <div>
+                            <h3>Meus Clientes</h3>
+                            <p style="font-size: 13px;">Visão geral de vencimentos e status.</p>
+                        </div>
+                        <button class="btn-primary" onclick="openModalQuick()">
+                            <i class="material-icons-round">person_add</i> Novo Cliente
+                        </button>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" id="search-input" class="form-control" placeholder="Buscar por nome ou whatsapp..." onkeyup="filtrarTabela()">
+                    </div>
+
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Telas</th>
+                                    <th style="text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="quick-client-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Cliente</h3>
+                <button class="close-modal" onclick="closeModalQuick()">&times;</button>
+            </div>
+            <form id="quick-form">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="quick-nome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="quick-zap" class="form-control" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="action-btn" onclick="closeModalQuick()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar e Configurar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/assets/js/supabase-client.js"></script>
+
+    <script>
+        // ... (Lógica de Tema/Sidebar igual aos anteriores) ...
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('pandda-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        if(themeIcon) themeIcon.innerText = savedTheme === 'light' ? 'dark_mode' : 'light_mode';
+        if(themeToggle) themeToggle.addEventListener('click', () => {
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('pandda-theme', newTheme);
+            themeIcon.innerText = newTheme === 'light' ? 'dark_mode' : 'light_mode';
+        });
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        if(sidebarToggle) sidebarToggle.addEventListener('click', () => document.body.classList.toggle('collapsed'));
+        
+        // --- LÓGICA UNIFICADA ---
+
+        async function fetchClientes() {
+            const tbody = document.getElementById('table-body');
+            
+            // JOIN INTELIGENTE: Traz Cliente + Assinatura (se existir)
+            const { data, error } = await window.supabaseClient
+                .from('clientes')
+                .select('*, assinaturas(data_vencimento, telas_contratadas, status)')
+                .order('created_at', { ascending: false });
+
+            if (error) { tbody.innerHTML = '<tr><td colspan="5">Erro...</td></tr>'; return; }
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhum cliente.</td></tr>';
+                return;
+            }
+
+            const hoje = new Date().toISOString().split('T')[0];
+
+            data.forEach(cli => {
+                // Lógica de Status Baseada na Assinatura
+                let statusHtml = '<span class="badge" style="background:#e2e8f0; color:#64748b;">Sem Plano</span>';
+                let vencimento = '-';
+                let telas = '-';
+                
+                // O Supabase retorna "assinaturas" como um array ou objeto dependendo da relação.
+                // Como é 1:1, geralmente vem um array de 1 item ou objeto. Vamos tratar.
+                const ass = (cli.assinaturas && cli.assinaturas.length > 0) ? cli.assinaturas[0] : cli.assinaturas;
+
+                if (ass) {
+                    vencimento = ass.data_vencimento.split('-').reverse().join('/');
+                    telas = `${ass.telas_contratadas} tela(s)`;
+                    
+                    if (ass.data_vencimento < hoje) {
+                        statusHtml = '<span class="badge danger">VENCIDO</span>';
+                    } else {
+                        statusHtml = '<span class="badge success">ATIVO</span>';
+                    }
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight:600;">${cli.nome}</div>
+                        <div style="display:flex; align-items:center; gap:4px; font-size:12px; color:var(--text-secondary);">
+                            <i class="material-icons-round" style="font-size:12px; color:#25D366;">chat</i> ${cli.whatsapp}
+                        </div>
+                    </td>
+                    <td><span style="font-weight:500;">${vencimento}</span></td>
+                    <td>${statusHtml}</td>
+                    <td>${telas}</td>
+                    <td style="text-align: right;">
+                        <button class="btn-primary btn-sm" onclick="gerenciar('${cli.id}')">
+                            <i class="material-icons-round" style="font-size:14px; margin-right:5px;">settings</i> Gerenciar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Navegar para a tela "Tudo em Um"
+        window.gerenciar = function(id) {
+            window.location.href = `/pages/clientes/gerenciar.html?id=${id}`;
+        }
+
+        // Modal Rápido (Cadastro)
+        const modalQuick = document.getElementById('quick-client-modal');
+        window.openModalQuick = () => { modalQuick.classList.add('open'); document.getElementById('quick-form').reset(); };
+        window.closeModalQuick = () => { modalQuick.classList.remove('open'); };
+
+        document.getElementById('quick-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('quick-nome').value;
+            const zap = document.getElementById('quick-zap').value;
+            
+            // Cria o cliente
+            const { data, error } = await window.supabaseClient
+                .from('clientes')
+                .insert([{ nome: nome, whatsapp: zap }])
+                .select()
+                .single();
+
+            if(error) alert("Erro: " + error.message);
+            else {
+                // Redireciona imediatamente para configurar o plano
+                window.location.href = `/pages/clientes/gerenciar.html?id=${data.id}`;
+            }
+        });
+
+        // Filtro
+        window.filtrarTabela = function() {
+            const val = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(r => {
+                const txt = r.innerText.toLowerCase();
+                r.style.display = txt.includes(val) ? '' : 'none';
+            });
+        }
+
+        window.onload = () => { setTimeout(fetchClientes, 500); };
+    </script>
+</body>
+</html>
