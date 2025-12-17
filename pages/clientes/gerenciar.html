@@ -10,15 +10,10 @@
     <link rel="stylesheet" href="/assets/css/global.css">
 
     <style>
-        /* Layout Grid da Página */
         .manager-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
+        .section-header { font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         
-        .section-header { 
-            font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; 
-            margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
-        }
-
-        /* Estilos DualAPP e Pontos (Reaproveitados) */
+        /* Toggle e Sliders */
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -26,43 +21,31 @@
         input:checked + .slider { background-color: var(--sidebar-active); }
         input:checked + .slider:before { transform: translateX(24px); }
         
-        .ponto-item {
-            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-        }
+        .ponto-item { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 
         @media (max-width: 900px) { .manager-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body>
+
+<body data-title="Gerenciar Cliente">
 
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
 
     <div class="dashboard-container">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header"><h2><i class="material-icons-round logo-icon">grid_view</i><span>Pandda</span></h2></div>
-            <ul class="sidebar-menu">
-                <li><a href="/pages/dashboard/index.html"><i class="material-icons-round">dashboard</i> <span>Dashboard</span></a></li>
-                <li><a href="/pages/servidores/index.html"><i class="material-icons-round">dns</i> <span>Servidores</span></a></li>
-                <li><a href="/pages/apps/index.html"><i class="material-icons-round">android</i> <span>Aplicativos</span></a></li>
-                <li><a href="/pages/planos/index.html"><i class="material-icons-round">payments</i> <span>Planos</span></a></li>
-                <li><a href="/pages/clientes/index.html" class="active"><i class="material-icons-round">people</i> <span>Clientes</span></a></li>
-            </ul>
-        </aside>
-        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <div id="sidebar-container"></div>
 
         <div class="main-content">
-            <header class="topbar">
-                <div class="topbar-left">
-                    <div class="toggle-btn" id="sidebar-toggle"><i class="material-icons-round">menu</i></div>
-                    <h2 style="font-size: 18px; font-weight: 600; margin-left: 10px;">Gerenciar Cliente</h2>
-                </div>
-                <div class="topbar-right">
-                    <button class="action-btn logout-btn" onclick="window.location.href='/pages/clientes/index.html'"><i class="material-icons-round">arrow_back</i> Voltar</button>
-                </div>
-            </header>
+            <div id="topbar-container"></div>
 
             <main class="page-content">
+                
+                <div style="margin-bottom: 20px;">
+                    <a href="/pages/clientes/index.html" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; color: var(--text-secondary); font-size: 14px;">
+                        <i class="material-icons-round" style="font-size: 18px;">arrow_back</i> Voltar para Lista
+                    </a>
+                </div>
+
                 <div class="manager-grid">
                     
                     <div class="left-col">
@@ -171,26 +154,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
+    
+    <script src="/assets/js/components.js"></script>
+    <script src="/assets/js/layout.js"></script>
 
     <script>
-        // ID do cliente vindo da URL
         const urlParams = new URLSearchParams(window.location.search);
         const clienteId = urlParams.get('id');
 
-        // Caches
-        let assinaturaAtual = null; 
-        let planosCache = []; 
-        let appsCache = [];
-        let pontosSrv1 = []; 
-        let pontosSrv2 = [];
+        let assinaturaAtual = null, planosCache = [], appsCache = [], pontosSrv1 = [], pontosSrv2 = [];
 
         window.onload = async () => {
             if(!clienteId) return window.location.href='/pages/clientes/index.html';
             
-            // UI
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            if(sidebarToggle) sidebarToggle.addEventListener('click', () => document.body.classList.toggle('collapsed'));
-
             // 1. Carregar Combos
             const { data: planos } = await window.supabaseClient.from('planos').select('*').eq('ativo', true);
             planosCache = planos;
@@ -210,9 +186,8 @@
             const selApp = document.getElementById('ponto-app');
             apps.forEach(a => selApp.innerHTML += `<option value="${a.id}">${a.nome}</option>`);
 
-            // 2. Carregar Cliente
+            // 2. Carregar Cliente e Assinatura
             await carregarCliente();
-            // 3. Carregar Assinatura
             await carregarAssinatura();
         };
 
@@ -234,11 +209,9 @@
                 observacoes: document.getElementById('cli-obs').value
             };
             const { error } = await window.supabaseClient.from('clientes').update(payload).eq('id', clienteId);
-            if(error) alert("Erro ao atualizar dados.");
-            else alert("Dados do cliente atualizados!");
+            if(error) alert("Erro."); else alert("Atualizado!");
         }
 
-        // --- ASSINATURA ---
         async function carregarAssinatura() {
             const { data } = await window.supabaseClient.from('assinaturas').select('*').eq('cliente_id', clienteId).single();
             const cardPontos = document.getElementById('card-pontos');
@@ -255,20 +228,18 @@
                 if(data.is_dual_app) {
                     document.getElementById('toggle-dualapp').checked = true;
                     document.getElementById('dual-area').style.display = 'block';
-                    document.getElementById('servidor_secundario').value = data.servidor_secundario_id;
                     document.getElementById('block-srv2').style.display = 'block';
+                    document.getElementById('servidor_secundario').value = data.servidor_secundario_id;
                 } else {
                     document.getElementById('toggle-dualapp').checked = false;
                     document.getElementById('dual-area').style.display = 'none';
                     document.getElementById('block-srv2').style.display = 'none';
                 }
 
-                // Status
                 const hoje = new Date().toISOString().split('T')[0];
                 if(data.data_vencimento < hoje) statusBadge.innerHTML = '<span class="badge danger" style="font-size:14px;">CONTRATO VENCIDO</span>';
                 else statusBadge.innerHTML = '<span class="badge success" style="font-size:14px;">CONTRATO ATIVO</span>';
 
-                // Libera Pontos
                 cardPontos.style.opacity = '1';
                 cardPontos.style.pointerEvents = 'auto';
 
@@ -298,21 +269,17 @@
         }
 
         async function salvarAssinatura() {
-            const pid = document.getElementById('plano_id').value;
-            if(!pid) return alert("Selecione um plano.");
-            
-            // Valida limite downgrade
-            const limite = parseInt(document.getElementById('telas_contratadas').value);
+            const limit = parseInt(document.getElementById('telas_contratadas').value);
             const uso1 = pontosSrv1.reduce((a,b)=>a+b.telas_ocupadas,0);
             const uso2 = pontosSrv2.reduce((a,b)=>a+b.telas_ocupadas,0);
 
-            if(uso1 > limite) return alert(`Impossível salvar! Srv1 tem ${uso1} telas em uso, limite é ${limite}.`);
-            if(document.getElementById('toggle-dualapp').checked && uso2 > limite) return alert(`Impossível salvar! Srv2 tem ${uso2} telas em uso.`);
+            if(uso1 > limit) return alert(`Impossível salvar! Srv1 tem ${uso1} telas em uso, limite é ${limit}.`);
+            if(document.getElementById('toggle-dualapp').checked && uso2 > limit) return alert(`Impossível salvar! Srv2 tem ${uso2} telas em uso.`);
 
             const payload = {
                 cliente_id: clienteId,
-                plano_id: pid,
-                telas_contratadas: limite,
+                plano_id: document.getElementById('plano_id').value,
+                telas_contratadas: limit,
                 data_vencimento: document.getElementById('data_vencimento').value,
                 servidor_primario_id: document.getElementById('servidor_primario').value,
                 is_dual_app: document.getElementById('toggle-dualapp').checked,
@@ -320,11 +287,11 @@
             };
 
             const { error } = await window.supabaseClient.from('assinaturas').upsert({
-                id: assinaturaAtual?.id, // se existir, atualiza
+                id: assinaturaAtual?.id,
                 ...payload
             });
 
-            if(error) alert("Erro ao salvar contrato: " + error.message);
+            if(error) alert("Erro ao salvar: " + error.message);
             else { alert("Contrato salvo!"); carregarAssinatura(); }
         }
 
@@ -345,7 +312,7 @@
             data.forEach(p => {
                 if(p.servidor_id === srv1) pontosSrv1.push(p);
                 else if(p.servidor_id === srv2) pontosSrv2.push(p);
-                else pontosSrv1.push(p); // Fallback
+                else pontosSrv1.push(p);
             });
 
             renderLista('lista-srv1', pontosSrv1, 'count-srv1');
@@ -353,28 +320,23 @@
         }
 
         function renderLista(divId, lista, countId) {
-            const div = document.getElementById(divId);
             const limit = parseInt(document.getElementById('telas_contratadas').value);
             const used = lista.reduce((a,b)=>a+b.telas_ocupadas,0);
             
             document.getElementById(countId).innerText = `${used} / ${limit}`;
             document.getElementById(countId).style.color = used > limit ? 'red' : 'green';
 
-            div.innerHTML = '';
-            lista.forEach(p => {
-                div.innerHTML += `
-                    <div class="ponto-item">
-                        <div>
-                            <div style="font-weight:600; font-size:13px;">${p.apps?.nome} (${p.telas_ocupadas}t)</div>
-                            <div style="font-size:12px; color:#666;">${p.tipo_acesso==='login'?p.usuario:p.mac_address}</div>
-                        </div>
-                        <button class="btn-sm btn-danger" onclick="delPonto('${p.id}')"><i class="material-icons-round">delete</i></button>
+            document.getElementById(divId).innerHTML = lista.map(p => `
+                <div class="ponto-item">
+                    <div>
+                        <div style="font-weight:600; font-size:13px;">${p.apps?.nome} (${p.telas_ocupadas}t)</div>
+                        <div style="font-size:12px; color:#666;">${p.tipo_acesso==='login'?p.usuario:p.mac_address}</div>
                     </div>
-                `;
-            });
+                    <button class="btn-sm btn-danger" onclick="delPonto('${p.id}')"><i class="material-icons-round">delete</i></button>
+                </div>
+            `).join('');
         }
 
-        // Modal Ponto Lógica
         const modalPonto = document.getElementById('ponto-modal');
         function openModalPonto(target) {
             const limit = parseInt(document.getElementById('telas_contratadas').value);

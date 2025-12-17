@@ -4,117 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servidores | Pandda</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
     <link rel="stylesheet" href="/assets/css/global.css">
 </head>
-<body>
+<body data-title="Gerenciar Servidores">
 
-    <div id="loading-screen">
-        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-        <p style="margin-top: 15px;">Carregando...</p>
-    </div>
+    <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
 
     <div class="dashboard-container">
-        
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>
-                    <i class="material-icons-round logo-icon">grid_view</i>
-                    <span>Pandda</span>
-                </h2>
-            </div>
-            
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="/pages/dashboard/index.html">
-                        <i class="material-icons-round">dashboard</i> 
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/pages/servidores/index.html" class="active">
-                        <i class="material-icons-round">dns</i> 
-                        <span>Servidores</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="material-icons-round">people</i> 
-                        <span>Clientes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="material-icons-round">shopping_cart</i> 
-                        <span>Assinaturas</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
-
-        <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
+        <div id="sidebar-container"></div>
         <div class="main-content">
-            
-            <header class="topbar">
-                <div class="topbar-left">
-                    <div class="toggle-btn" id="sidebar-toggle" title="Alternar Menu">
-                        <i class="material-icons-round">menu</i>
-                    </div>
-                    <h2 style="font-size: 18px; font-weight: 600; margin-left: 10px;">Gerenciar Servidores</h2>
-                </div>
-                
-                <div class="topbar-right">
-                    
-                    <button class="action-btn" id="theme-toggle" title="Alternar Tema">
-                        <i class="material-icons-round" id="theme-icon">dark_mode</i>
-                    </button>
-
-                    <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
-
-                    <div class="user-info">
-                        <div class="user-details">
-                            <span class="user-name">Admin</span>
-                            <span class="user-role">Gerente</span>
-                        </div>
-                        <div class="user-avatar">A</div>
-                    </div>
-
-                    <button class="action-btn logout-btn" id="btn-logout" title="Sair do Sistema">
-                        <i class="material-icons-round">logout</i>
-                    </button>
-                </div>
-            </header>
-
+            <div id="topbar-container"></div>
             <main class="page-content">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <div>
-                            <h3>Lista de Servidores</h3>
-                            <p style="font-size: 13px;">Gerencie os pontos de conexão do sistema.</p>
-                        </div>
-                        <button class="btn-primary" onclick="openModal()">
-                            <i class="material-icons-round">add</i> Novo Servidor
-                        </button>
+                        <div><h3>Lista de Servidores</h3><p style="font-size: 13px;">Pontos de conexão.</p></div>
+                        <button class="btn-primary" onclick="openModal()"><i class="material-icons-round">add</i> Novo Servidor</button>
                     </div>
-
                     <div class="table-container">
                         <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Identificação (Técnico / Alias)</th>
-                                    <th>DNS Principal</th>
-                                    <th>DNS Secundário</th>
-                                    <th style="text-align: center;">Status</th>
-                                    <th style="text-align: right;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <tr><td colspan="5" style="text-align:center; padding: 20px;">Carregando dados...</td></tr>
-                            </tbody>
+                            <thead><tr><th>Identificação</th><th>DNS Principal</th><th>DNS Secundário</th><th style="text-align: center;">Status</th><th style="text-align: right;">Ações</th></tr></thead>
+                            <tbody id="table-body"><tr><td colspan="5" style="text-align:center;">Carregando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -124,254 +35,47 @@
 
     <div class="modal-overlay" id="server-modal">
         <div class="modal" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">Novo Servidor</h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            
+            <div class="modal-header"><h3 class="modal-title" id="modal-title">Novo Servidor</h3><button class="close-modal" onclick="closeModal()">&times;</button></div>
             <form id="server-form">
                 <input type="hidden" id="server-id">
-                
-                <div class="form-group">
-                    <label>Nome Técnico (Interno)</label>
-                    <input type="text" id="nome" class="form-control" placeholder="Ex: Servidor OVH-01" required>
-                    <small style="color: var(--text-secondary); font-size: 11px;">Identificação para os administradores.</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Alias / Nome Fantasia (Visível ao Cliente)</label>
-                    <input type="text" id="alias" class="form-control" placeholder="Ex: Servidor Premium 4K">
-                    <small style="color: var(--text-secondary); font-size: 11px;">Este é o nome que aparecerá no aplicativo do cliente.</small>
-                </div>
-
-                <div class="form-section-title">DNS Principal (Obrigatório)</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Rótulo</label>
-                        <input type="text" id="nome_dns1" class="form-control" placeholder="Ex: Principal" required>
-                    </div>
-                    <div class="form-group">
-                        <label>URL / Host</label>
-                        <input type="text" id="dns1" class="form-control" placeholder="http://url-principal.com" required>
-                    </div>
-                </div>
-
-                <div class="form-section-title">DNS Secundário (Opcional)</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Rótulo</label>
-                        <input type="text" id="nome_dns2" class="form-control" placeholder="Ex: Backup">
-                    </div>
-                    <div class="form-group">
-                        <label>URL / Host</label>
-                        <input type="text" id="dns2" class="form-control" placeholder="http://url-backup.com">
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="action-btn" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar Servidor</button>
-                </div>
+                <div class="form-group"><label>Nome Técnico</label><input type="text" id="nome" class="form-control" required></div>
+                <div class="form-group"><label>Alias (Cliente)</label><input type="text" id="alias" class="form-control"></div>
+                <div class="form-section-title">DNS 1</div>
+                <div class="form-row"><div class="form-group"><label>Rótulo</label><input type="text" id="nome_dns1" class="form-control" value="Principal"></div><div class="form-group"><label>URL</label><input type="text" id="dns1" class="form-control" required></div></div>
+                <div class="form-section-title">DNS 2</div>
+                <div class="form-row"><div class="form-group"><label>Rótulo</label><input type="text" id="nome_dns2" class="form-control" value="Backup"></div><div class="form-group"><label>URL</label><input type="text" id="dns2" class="form-control"></div></div>
+                <div class="form-actions"><button type="button" class="action-btn" onclick="closeModal()">Cancelar</button><button type="submit" class="btn-primary">Salvar</button></div>
             </form>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script src="/assets/js/layout.js"></script>
 
     <script>
-        // ==========================================
-        // 1. GERENCIAMENTO DE TEMA & LAYOUT (PADRÃO)
-        // ==========================================
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const html = document.documentElement;
-
-        // Configura Tema
-        const savedTheme = localStorage.getItem('pandda-theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
-        if(themeIcon) updateThemeIcon(savedTheme);
-
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = html.getAttribute('data-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                html.setAttribute('data-theme', newTheme);
-                localStorage.setItem('pandda-theme', newTheme);
-                updateThemeIcon(newTheme);
-            });
-        }
-
-        function updateThemeIcon(theme) {
-            themeIcon.innerText = theme === 'light' ? 'dark_mode' : 'light_mode';
-        }
-
-        // Configura Sidebar (Desktop/Mobile)
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const body = document.body;
-
-        if(sidebarToggle) {
-            sidebarToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (window.innerWidth > 768) {
-                    body.classList.toggle('collapsed');
-                } else {
-                    sidebar.classList.toggle('mobile-active');
-                    overlay.classList.toggle('active');
-                }
-            });
-        }
-        if(overlay) {
-            overlay.addEventListener('click', () => {
-                sidebar.classList.remove('mobile-active');
-                overlay.classList.remove('active');
-            });
-        }
-
-        // Lógica de Logout
-        const btnLogout = document.getElementById('btn-logout');
-        if(btnLogout) {
-            btnLogout.addEventListener('click', async () => {
-                if(confirm("Sair do sistema?")) {
-                    await window.supabaseClient.auth.signOut();
-                    localStorage.removeItem('sb-yvktnznpozluqcjtvxeu-auth-token');
-                    window.location.href = '/pages/login/index.html';
-                }
-            });
-        }
-
-        // ==========================================
-        // 2. LÓGICA DO CRUD SERVIDORES (ESPECÍFICO)
-        // ==========================================
         const modal = document.getElementById('server-modal');
         const form = document.getElementById('server-form');
-        
-        function openModal(id = null) {
-            modal.classList.add('open');
-            document.getElementById('server-id').value = ''; 
-            form.reset(); 
-            document.getElementById('modal-title').innerText = "Novo Servidor";
-            // Defaults
-            document.getElementById('nome_dns1').value = "Principal";
-            document.getElementById('nome_dns2').value = "Secundário";
-            if(id) loadServerData(id);
-        }
-
-        function closeModal() {
-            modal.classList.remove('open');
-        }
-
         async function fetchServidores() {
             const tbody = document.getElementById('table-body');
-            const { data, error } = await window.supabaseClient
-                .from('servidores')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error("Erro:", error);
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Erro ao carregar.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = ''; 
-
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px;">Nenhum servidor encontrado.</td></tr>';
-                return;
-            }
-
-            data.forEach(server => {
-                const dns2Html = server.dns2 
-                    ? `<div><strong style="font-size:12px;">${server.nome_dns2}:</strong><br><span style="font-size:12px; color:var(--text-secondary)">${server.dns2}</span></div>` 
-                    : '<span style="color: #ccc; font-size: 12px;">-</span>';
-                
-                const aliasDisplay = server.alias 
-                    ? `<span style="font-size:12px; color:var(--sidebar-active); font-weight:500;">★ ${server.alias}</span>` 
-                    : '<span style="font-size:11px; color:var(--text-secondary); font-style:italic;">Sem alias</span>';
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div style="font-weight: 600; color: var(--text-primary);">${server.nome}</div>
-                        ${aliasDisplay}
-                    </td>
-                    <td>
-                        <strong style="font-size:12px;">${server.nome_dns1}:</strong><br>
-                        <span style="font-size:12px; color:var(--text-secondary);">${server.dns1}</span>
-                    </td>
-                    <td>${dns2Html}</td>
-                    <td style="text-align: center;"><span class="badge success">Ativo</span></td>
-                    <td style="text-align: right;">
-                        <button class="action-btn" onclick="openModal('${server.id}')" title="Editar" style="color: #f59e0b;"><i class="material-icons-round">edit</i></button>
-                        <button class="action-btn" onclick="deleteServer('${server.id}')" title="Excluir" style="color: #ef4444;"><i class="material-icons-round">delete</i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+            const { data, error } = await window.supabaseClient.from('servidores').select('*').order('created_at', { ascending: false });
+            if (error) return; tbody.innerHTML = '';
+            data.forEach(s => {
+                const alias = s.alias ? `<span style="font-size:11px; color:var(--sidebar-active);">★ ${s.alias}</span>` : '';
+                tbody.innerHTML += `<tr><td><div style="font-weight:600;">${s.nome}</div>${alias}</td><td><strong style="font-size:12px;">${s.nome_dns1}:</strong><br><span style="font-size:12px;">${s.dns1}</span></td><td><strong style="font-size:12px;">${s.nome_dns2}:</strong><br><span style="font-size:12px;">${s.dns2||'-'}</span></td><td style="text-align:center;"><span class="badge success">Ativo</span></td><td style="text-align:right;"><button class="action-btn" onclick="openModal('${s.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button><button class="action-btn" onclick="deleteServer('${s.id}')" style="color:#ef4444;"><i class="material-icons-round">delete</i></button></td></tr>`;
             });
         }
-
+        window.openModal = async (id=null) => { modal.classList.add('open'); document.getElementById('server-id').value=''; form.reset(); if(id) { const { data } = await window.supabaseClient.from('servidores').select('*').eq('id', id).single(); if(data) { document.getElementById('server-id').value = data.id; document.getElementById('nome').value = data.nome; document.getElementById('alias').value = data.alias||''; document.getElementById('nome_dns1').value = data.nome_dns1; document.getElementById('dns1').value = data.dns1; document.getElementById('nome_dns2').value = data.nome_dns2||''; document.getElementById('dns2').value = data.dns2||''; } } }
+        window.closeModal = () => modal.classList.remove('open');
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btnSubmit = form.querySelector('button[type="submit"]');
-            btnSubmit.innerText = "Salvando...";
-            btnSubmit.disabled = true;
-
-            const id = document.getElementById('server-id').value;
-            const payload = {
-                nome: document.getElementById('nome').value,
-                alias: document.getElementById('alias').value,
-                nome_dns1: document.getElementById('nome_dns1').value,
-                dns1: document.getElementById('dns1').value,
-                nome_dns2: document.getElementById('nome_dns2').value,
-                dns2: document.getElementById('dns2').value
-            };
-
-            let error;
-            if (id) {
-                const res = await window.supabaseClient.from('servidores').update(payload).eq('id', id);
-                error = res.error;
-            } else {
-                const res = await window.supabaseClient.from('servidores').insert([payload]);
-                error = res.error;
-            }
-
-            if (error) {
-                alert("Erro: " + error.message);
-            } else {
-                closeModal();
-                fetchServidores();
-            }
-            btnSubmit.innerText = "Salvar Servidor";
-            btnSubmit.disabled = false;
+            e.preventDefault(); const id = document.getElementById('server-id').value;
+            const payload = { nome: document.getElementById('nome').value, alias: document.getElementById('alias').value, nome_dns1: document.getElementById('nome_dns1').value, dns1: document.getElementById('dns1').value, nome_dns2: document.getElementById('nome_dns2').value, dns2: document.getElementById('dns2').value };
+            await window.supabaseClient.from('servidores').upsert({ id: id||undefined, ...payload });
+            closeModal(); fetchServidores();
         });
-
-        async function loadServerData(id) {
-            document.getElementById('modal-title').innerText = "Editar Servidor";
-            const { data } = await window.supabaseClient.from('servidores').select('*').eq('id', id).single();
-            if(data) {
-                document.getElementById('server-id').value = data.id;
-                document.getElementById('nome').value = data.nome;
-                document.getElementById('alias').value = data.alias || '';
-                document.getElementById('nome_dns1').value = data.nome_dns1;
-                document.getElementById('dns1').value = data.dns1;
-                document.getElementById('nome_dns2').value = data.nome_dns2 || '';
-                document.getElementById('dns2').value = data.dns2 || '';
-            }
-        }
-
-        async function deleteServer(id) {
-            if(confirm("Deseja realmente remover?")) {
-                const { error } = await window.supabaseClient.from('servidores').delete().eq('id', id);
-                if (!error) fetchServidores();
-            }
-        }
-
-        // Inicializa
-        window.onload = () => {
-            setTimeout(fetchServidores, 500);
-        };
+        window.deleteServer = async (id) => { if(confirm("Excluir?")) { await window.supabaseClient.from('servidores').delete().eq('id', id); fetchServidores(); } }
+        window.onload = () => setTimeout(fetchServidores, 500);
     </script>
 </body>
 </html>
