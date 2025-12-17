@@ -9,9 +9,7 @@
     <link rel="stylesheet" href="/assets/css/global.css">
 </head>
 <body data-title="Gerenciar Servidores">
-
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
-
     <div class="dashboard-container">
         <div id="sidebar-container"></div>
         <div class="main-content">
@@ -24,7 +22,7 @@
                     </div>
                     <div class="table-container">
                         <table class="modern-table">
-                            <thead><tr><th>Identificação</th><th>DNS Principal</th><th>DNS Secundário</th><th style="text-align: center;">Status</th><th style="text-align: right;">Ações</th></tr></thead>
+                            <thead><tr><th>Identificação</th><th>DNS Principal</th><th>DNS Secundário</th><th style="text-align: center;">Ativo?</th><th style="text-align: right;">Ações</th></tr></thead>
                             <tbody id="table-body"><tr><td colspan="5" style="text-align:center;">Carregando...</td></tr></tbody>
                         </table>
                     </div>
@@ -32,7 +30,6 @@
             </main>
         </div>
     </div>
-
     <div class="modal-overlay" id="server-modal">
         <div class="modal" style="max-width: 600px;">
             <div class="modal-header"><h3 class="modal-title" id="modal-title">Novo Servidor</h3><button class="close-modal" onclick="closeModal()">&times;</button></div>
@@ -48,12 +45,10 @@
             </form>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
-
     <script>
         const modal = document.getElementById('server-modal');
         const form = document.getElementById('server-form');
@@ -63,18 +58,17 @@
             if (error) return; tbody.innerHTML = '';
             data.forEach(s => {
                 const alias = s.alias ? `<span style="font-size:11px; color:var(--sidebar-active);">★ ${s.alias}</span>` : '';
-                tbody.innerHTML += `<tr><td><div style="font-weight:600;">${s.nome}</div>${alias}</td><td><strong style="font-size:12px;">${s.nome_dns1}:</strong><br><span style="font-size:12px;">${s.dns1}</span></td><td><strong style="font-size:12px;">${s.nome_dns2}:</strong><br><span style="font-size:12px;">${s.dns2||'-'}</span></td><td style="text-align:center;"><span class="badge success">Ativo</span></td><td style="text-align:right;"><button class="action-btn" onclick="openModal('${s.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button><button class="action-btn" onclick="deleteServer('${s.id}')" style="color:#ef4444;"><i class="material-icons-round">delete</i></button></td></tr>`;
+                const rowClass = s.ativo ? '' : 'class="row-disabled"';
+                const toggle = `<label class="switch-sm"><input type="checkbox" ${s.ativo?'checked':''} onchange="toggleAtivo('${s.id}', this.checked)"><span class="slider-sm"></span></label>`;
+                
+                tbody.innerHTML += `<tr ${rowClass}><td><div style="font-weight:600;">${s.nome}</div>${alias}</td><td><strong style="font-size:12px;">${s.nome_dns1}:</strong><br><span style="font-size:12px;">${s.dns1}</span></td><td><strong style="font-size:12px;">${s.nome_dns2}:</strong><br><span style="font-size:12px;">${s.dns2||'-'}</span></td><td style="text-align:center;">${toggle}</td><td style="text-align:right;"><button class="action-btn" onclick="openModal('${s.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
             });
+            document.getElementById('loading-screen').style.display = 'none';
         }
         window.openModal = async (id=null) => { modal.classList.add('open'); document.getElementById('server-id').value=''; form.reset(); if(id) { const { data } = await window.supabaseClient.from('servidores').select('*').eq('id', id).single(); if(data) { document.getElementById('server-id').value = data.id; document.getElementById('nome').value = data.nome; document.getElementById('alias').value = data.alias||''; document.getElementById('nome_dns1').value = data.nome_dns1; document.getElementById('dns1').value = data.dns1; document.getElementById('nome_dns2').value = data.nome_dns2||''; document.getElementById('dns2').value = data.dns2||''; } } }
         window.closeModal = () => modal.classList.remove('open');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault(); const id = document.getElementById('server-id').value;
-            const payload = { nome: document.getElementById('nome').value, alias: document.getElementById('alias').value, nome_dns1: document.getElementById('nome_dns1').value, dns1: document.getElementById('dns1').value, nome_dns2: document.getElementById('nome_dns2').value, dns2: document.getElementById('dns2').value };
-            await window.supabaseClient.from('servidores').upsert({ id: id||undefined, ...payload });
-            closeModal(); fetchServidores();
-        });
-        window.deleteServer = async (id) => { if(confirm("Excluir?")) { await window.supabaseClient.from('servidores').delete().eq('id', id); fetchServidores(); } }
+        window.toggleAtivo = async (id, status) => { await window.supabaseClient.from('servidores').update({ativo: status}).eq('id', id); fetchServidores(); }
+        form.addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('server-id').value; const payload = { nome: document.getElementById('nome').value, alias: document.getElementById('alias').value, nome_dns1: document.getElementById('nome_dns1').value, dns1: document.getElementById('dns1').value, nome_dns2: document.getElementById('nome_dns2').value, dns2: document.getElementById('dns2').value }; await window.supabaseClient.from('servidores').upsert({ id: id||undefined, ...payload }); closeModal(); fetchServidores(); });
         window.onload = () => setTimeout(fetchServidores, 500);
     </script>
 </body>

@@ -4,175 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planos | Pandda</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
 </head>
-
 <body data-title="Gerenciar Planos">
-
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
-
     <div class="dashboard-container">
-        
         <div id="sidebar-container"></div>
-
         <div class="main-content">
             <div id="topbar-container"></div>
-
             <main class="page-content">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <div>
-                            <h3>Planos de Assinatura</h3>
-                            <p style="font-size: 13px;">Defina preços e durações.</p>
-                        </div>
-                        <button class="btn-primary" onclick="openModal()">
-                            <i class="material-icons-round">add</i> Novo Plano
-                        </button>
+                        <div><h3>Planos de Assinatura</h3><p style="font-size: 13px;">Defina preços e durações.</p></div>
+                        <button class="btn-primary" onclick="openModal()"><i class="material-icons-round">add</i> Novo Plano</button>
                     </div>
-
                     <div class="table-container">
                         <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome do Plano</th>
-                                    <th>Validade</th>
-                                    <th>Preço Base</th>
-                                    <th>Telas Inclusas</th>
-                                    <th style="text-align: right;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>
-                            </tbody>
+                            <thead><tr><th>Nome do Plano</th><th>Validade</th><th>Preço Base</th><th>Telas</th><th>Ativo?</th><th style="text-align: right;">Ações</th></tr></thead>
+                            <tbody id="table-body"><tr><td colspan="6" style="text-align:center;">Carregando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
             </main>
         </div>
     </div>
-
     <div class="modal-overlay" id="plano-modal">
         <div class="modal" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">Novo Plano</h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            
+            <div class="modal-header"><h3 class="modal-title" id="modal-title">Novo Plano</h3><button class="close-modal" onclick="closeModal()">&times;</button></div>
             <form id="plano-form">
                 <input type="hidden" id="plano-id">
-                
-                <div class="form-group">
-                    <label>Nome do Plano</label>
-                    <input type="text" id="nome" class="form-control" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Validade (Meses)</label>
-                        <input type="number" id="validade_meses" class="form-control" value="1" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Preço (R$)</label>
-                        <input type="number" id="preco" class="form-control" step="0.01" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Telas Inclusas (Padrão)</label>
-                    <input type="number" id="telas" class="form-control" value="1" min="1" required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="action-btn" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar</button>
-                </div>
+                <div class="form-group"><label>Nome do Plano</label><input type="text" id="nome" class="form-control" required></div>
+                <div class="form-row"><div class="form-group"><label>Validade (Meses)</label><input type="number" id="validade_meses" class="form-control" value="1" min="1" required></div><div class="form-group"><label>Preço (R$)</label><input type="number" id="preco" class="form-control" step="0.01" required></div></div>
+                <div class="form-group"><label>Telas Inclusas (Padrão)</label><input type="number" id="telas" class="form-control" value="1" min="1" required></div>
+                <div class="form-actions"><button type="button" class="action-btn" onclick="closeModal()">Cancelar</button><button type="submit" class="btn-primary">Salvar</button></div>
             </form>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
-    
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
-
     <script>
-        const modal = document.getElementById('plano-modal');
-        const form = document.getElementById('plano-form');
-
-        // Listar
+        const modal = document.getElementById('plano-modal'); const form = document.getElementById('plano-form');
         async function fetchPlanos() {
             const tbody = document.getElementById('table-body');
             const { data, error } = await window.supabaseClient.from('planos').select('*').order('preco');
-
-            if (error) return; 
-            tbody.innerHTML = '';
-            
+            if (error) return; tbody.innerHTML = '';
             data.forEach(p => {
                 const preco = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.preco);
+                const rowClass = p.ativo ? '' : 'class="row-disabled"';
+                const toggle = `<label class="switch-sm"><input type="checkbox" ${p.ativo?'checked':''} onchange="toggleAtivo('${p.id}', this.checked)"><span class="slider-sm"></span></label>`;
                 
-                tbody.innerHTML += `
-                    <tr>
-                        <td><div style="font-weight:600;">${p.nome}</div></td>
-                        <td>${p.validade_meses} Mês(es)</td>
-                        <td style="font-weight:600; color:var(--sidebar-active);">${preco}</td>
-                        <td>${p.telas} Tela(s)</td>
-                        <td style="text-align: right;">
-                            <button class="action-btn" onclick="openModal('${p.id}')" style="color: #f59e0b;"><i class="material-icons-round">edit</i></button>
-                            <button class="action-btn" onclick="deletePlano('${p.id}')" style="color: #ef4444;"><i class="material-icons-round">delete</i></button>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr ${rowClass}><td><div style="font-weight:600;">${p.nome}</div></td><td>${p.validade_meses} Mês(es)</td><td style="font-weight:600; color:var(--sidebar-active);">${preco}</td><td>${p.telas} Tela(s)</td><td>${toggle}</td><td style="text-align: right;"><button class="action-btn" onclick="openModal('${p.id}')" style="color: #f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
             });
+            document.getElementById('loading-screen').style.display = 'none';
         }
-
-        // Modal Logic
-        window.openModal = async function(id = null) {
-            modal.classList.add('open');
-            document.getElementById('plano-id').value = '';
-            form.reset();
-            if(id) {
-                const { data } = await window.supabaseClient.from('planos').select('*').eq('id', id).single();
-                if(data) {
-                    document.getElementById('plano-id').value = data.id;
-                    document.getElementById('nome').value = data.nome;
-                    document.getElementById('validade_meses').value = data.validade_meses;
-                    document.getElementById('preco').value = data.preco;
-                    document.getElementById('telas').value = data.telas;
-                }
-            }
-        }
-
-        window.closeModal = function() { modal.classList.remove('open'); }
-
+        window.openModal = async (id=null) => { modal.classList.add('open'); document.getElementById('plano-id').value=''; form.reset(); if(id) { const {data} = await window.supabaseClient.from('planos').select('*').eq('id', id).single(); if(data) { document.getElementById('plano-id').value = data.id; document.getElementById('nome').value = data.nome; document.getElementById('validade_meses').value = data.validade_meses; document.getElementById('preco').value = data.preco; document.getElementById('telas').value = data.telas; } } }
+        window.closeModal = () => modal.classList.remove('open');
+        window.toggleAtivo = async (id, status) => { await window.supabaseClient.from('planos').update({ativo: status}).eq('id', id); fetchPlanos(); }
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('plano-id').value;
-            
-            const payload = {
-                nome: document.getElementById('nome').value,
-                validade_meses: document.getElementById('validade_meses').value,
-                preco: document.getElementById('preco').value,
-                telas: document.getElementById('telas').value
-            };
-
-            const { error } = await window.supabaseClient.from('planos').upsert({ id: id || undefined, ...payload });
-            
-            if(error) alert("Erro: " + error.message);
-            else { closeModal(); fetchPlanos(); }
+            e.preventDefault(); const id = document.getElementById('plano-id').value;
+            const payload = { nome: document.getElementById('nome').value, validade_meses: document.getElementById('validade_meses').value, preco: document.getElementById('preco').value, telas: document.getElementById('telas').value };
+            await window.supabaseClient.from('planos').upsert({ id: id || undefined, ...payload });
+            closeModal(); fetchPlanos();
         });
-
-        window.deletePlano = async function(id) {
-            if(confirm("Excluir este plano?")) {
-                await window.supabaseClient.from('planos').delete().eq('id', id);
-                fetchPlanos();
-            }
-        }
-
-        window.onload = () => { setTimeout(fetchPlanos, 500); };
+        window.onload = () => setTimeout(fetchPlanos, 500);
     </script>
 </body>
 </html>

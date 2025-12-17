@@ -13,7 +13,6 @@
         .manager-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
         .section-header { font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         
-        /* Toggle e Sliders */
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -32,12 +31,9 @@
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
 
     <div class="dashboard-container">
-        
         <div id="sidebar-container"></div>
-
         <div class="main-content">
             <div id="topbar-container"></div>
-
             <main class="page-content">
                 
                 <div style="margin-bottom: 20px;">
@@ -65,17 +61,19 @@
                             <div id="status-badge" style="margin-bottom:15px;"></div>
 
                             <form id="form-assinatura">
-                                <input type="hidden" id="ass-id"> <div class="form-group">
-                                    <label>Plano</label>
-                                    <select id="plano_id" class="form-control" onchange="aoMudarPlano()"><option value="">Selecione...</option></select>
-                                </div>
-
+                                <input type="hidden" id="ass-id">
+                                <div class="form-group"><label>Plano</label><select id="plano_id" class="form-control" onchange="aoMudarPlano()"><option value="">Selecione...</option></select></div>
                                 <div class="form-row">
                                     <div class="form-group"><label>Telas Total</label><input type="number" id="telas_contratadas" class="form-control" min="1" value="1"></div>
                                     <div class="form-group"><label>Vencimento</label><input type="date" id="data_vencimento" class="form-control"></div>
                                 </div>
 
-                                <div class="form-group"><label>Servidor Principal</label><select id="servidor_primario" class="form-control"><option value="">Selecione...</option></select></div>
+                                <div class="form-group">
+                                    <label>Servidor Principal</label>
+                                    <select id="servidor_primario" class="form-control" onchange="travarSelectDual()">
+                                        <option value="">Selecione...</option>
+                                    </select>
+                                </div>
 
                                 <div style="margin-top:15px; padding-top:10px; border-top:1px dashed var(--border-color);">
                                     <div style="display:flex; align-items:center; gap:10px;">
@@ -89,23 +87,19 @@
                                 </div>
 
                                 <div style="margin-top:20px;">
-                                    <button type="button" class="btn-primary" style="width:100%; justify-content:center;" onclick="salvarAssinatura()">
-                                        <i class="material-icons-round">save</i> Salvar Contrato
-                                    </button>
+                                    <button type="button" class="btn-primary" style="width:100%; justify-content:center;" onclick="salvarAssinatura()"><i class="material-icons-round">save</i> Salvar Contrato</button>
                                 </div>
                             </form>
                         </div>
                         
                         <div class="card">
-                            <button class="btn-danger" style="width:100%; justify-content:center;" onclick="excluirClienteTotal()">
-                                <i class="material-icons-round">delete_forever</i> Excluir Cliente
-                            </button>
+                            <div id="area-bloqueio">Carregando...</div>
                         </div>
                     </div>
 
                     <div class="right-col">
                         <div class="card" id="card-pontos" style="opacity:0.5; pointer-events:none;">
-                            <div class="section-header">Pontos de Acesso (Logins)</div>
+                            <div class="section-header">Pontos de Acesso</div>
                             
                             <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -134,9 +128,10 @@
 
     <div class="modal-overlay" id="ponto-modal">
         <div class="modal">
-            <div class="modal-header"><h3>Novo Ponto</h3><button class="close-modal" onclick="closeModalPonto()">&times;</button></div>
+            <div class="modal-header"><h3 class="modal-title" id="ponto-modal-title">Novo Ponto</h3><button class="close-modal" onclick="closeModalPonto()">&times;</button></div>
             <form id="ponto-form">
-                <input type="hidden" id="ponto-target"> <div class="form-group"><label>App</label><select id="ponto-app" class="form-control" required onchange="checkApp()"><option value="">...</option></select></div>
+                <input type="hidden" id="ponto-target">
+                <div class="form-group"><label>App</label><select id="ponto-app" class="form-control" required onchange="checkApp()"><option value="">...</option></select></div>
                 <div class="form-group"><label>Tipo</label><select id="ponto-tipo" class="form-control" onchange="toggleCred()"><option value="login">User/Pass</option><option value="mac">MAC</option></select></div>
                 <div id="area-login" class="form-row">
                     <div class="form-group"><input type="text" id="ponto-user" class="form-control" placeholder="User"></div>
@@ -154,7 +149,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
-    
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
 
@@ -162,60 +156,68 @@
         const urlParams = new URLSearchParams(window.location.search);
         const clienteId = urlParams.get('id');
 
-        let assinaturaAtual = null, planosCache = [], appsCache = [], pontosSrv1 = [], pontosSrv2 = [];
+        let assinaturaAtual = null, planosCache = [], appsCache = [], servidoresCache = [];
+        let pontosSrv1 = [], pontosSrv2 = [];
+        let clienteAtual = null;
 
         window.onload = async () => {
             if(!clienteId) return window.location.href='/pages/clientes/index.html';
             
-            // 1. Carregar Combos
             const { data: planos } = await window.supabaseClient.from('planos').select('*').eq('ativo', true);
             planosCache = planos;
             const selPlano = document.getElementById('plano_id');
             planos.forEach(p => selPlano.innerHTML += `<option value="${p.id}">${p.nome} (R$ ${p.preco})</option>`);
 
+            // Cache de Servidores e Apps Ativos
             const { data: srvs } = await window.supabaseClient.from('servidores').select('*').eq('ativo', true);
-            const selSrv1 = document.getElementById('servidor_primario');
-            const selSrv2 = document.getElementById('servidor_secundario');
-            srvs.forEach(s => {
-                const opt = `<option value="${s.id}">${s.nome} ${s.alias ? '('+s.alias+')' : ''}</option>`;
-                selSrv1.innerHTML += opt; selSrv2.innerHTML += opt;
-            });
+            servidoresCache = srvs;
+            atualizarSelectsServidores();
 
-            const { data: apps } = await window.supabaseClient.from('apps').select('*');
+            const { data: apps } = await window.supabaseClient.from('apps').select('*').eq('ativo', true);
             appsCache = apps;
-            const selApp = document.getElementById('ponto-app');
-            apps.forEach(a => selApp.innerHTML += `<option value="${a.id}">${a.nome}</option>`);
 
-            // 2. Carregar Cliente e Assinatura
             await carregarCliente();
             await carregarAssinatura();
         };
 
+        // --- BLOQUEIO / DADOS PESSOAIS ---
         async function carregarCliente() {
             const { data } = await window.supabaseClient.from('clientes').select('*').eq('id', clienteId).single();
             if(data) {
+                clienteAtual = data;
                 document.getElementById('cli-nome').value = data.nome;
                 document.getElementById('cli-zap').value = data.whatsapp;
                 document.getElementById('cli-email').value = data.email || '';
                 document.getElementById('cli-obs').value = data.observacoes || '';
+                renderBotaoBloqueio();
+            }
+        }
+
+        function renderBotaoBloqueio() {
+            const area = document.getElementById('area-bloqueio');
+            if(clienteAtual.bloqueado) {
+                area.innerHTML = `<p style="font-size:12px;color:#666;text-align:center;margin-bottom:10px;">Cliente bloqueado.</p><button class="btn-unblock-user" onclick="toggleBloqueio(false)"><i class="material-icons-round">lock_open</i> Desbloquear</button>`;
+            } else {
+                area.innerHTML = `<p style="font-size:12px;color:#666;text-align:center;margin-bottom:10px;">Acesso liberado.</p><button class="btn-block-user" onclick="toggleBloqueio(true)"><i class="material-icons-round">block</i> Bloquear Acesso</button>`;
+            }
+        }
+        
+        async function toggleBloqueio(status) {
+            if(confirm(status ? "Bloquear este cliente?" : "Liberar este cliente?")) {
+                await window.supabaseClient.from('clientes').update({ bloqueado: status }).eq('id', clienteId);
+                carregarCliente();
             }
         }
 
         async function salvarDadosCliente() {
-            const payload = {
-                nome: document.getElementById('cli-nome').value,
-                whatsapp: document.getElementById('cli-zap').value,
-                email: document.getElementById('cli-email').value,
-                observacoes: document.getElementById('cli-obs').value
-            };
-            const { error } = await window.supabaseClient.from('clientes').update(payload).eq('id', clienteId);
+            const { error } = await window.supabaseClient.from('clientes').update({ nome: document.getElementById('cli-nome').value, whatsapp: document.getElementById('cli-zap').value, email: document.getElementById('cli-email').value, observacoes: document.getElementById('cli-obs').value }).eq('id', clienteId);
             if(error) alert("Erro."); else alert("Atualizado!");
         }
 
+        // --- ASSINATURA ---
         async function carregarAssinatura() {
             const { data } = await window.supabaseClient.from('assinaturas').select('*').eq('cliente_id', clienteId).single();
-            const cardPontos = document.getElementById('card-pontos');
-            const statusBadge = document.getElementById('status-badge');
+            const cardPontos = document.getElementById('card-pontos'), statusBadge = document.getElementById('status-badge');
             
             if(data) {
                 assinaturaAtual = data;
@@ -223,59 +225,73 @@
                 document.getElementById('plano_id').value = data.plano_id;
                 document.getElementById('telas_contratadas').value = data.telas_contratadas;
                 document.getElementById('data_vencimento').value = data.data_vencimento;
+                
+                // Set servers and force DualAPP check
                 document.getElementById('servidor_primario').value = data.servidor_primario_id;
+                
+                document.getElementById('toggle-dualapp').checked = data.is_dual_app;
+                toggleDualApp(); // Mostra/Esconde divs
+                
+                if(data.is_dual_app) document.getElementById('servidor_secundario').value = data.servidor_secundario_id;
 
-                if(data.is_dual_app) {
-                    document.getElementById('toggle-dualapp').checked = true;
-                    document.getElementById('dual-area').style.display = 'block';
-                    document.getElementById('block-srv2').style.display = 'block';
-                    document.getElementById('servidor_secundario').value = data.servidor_secundario_id;
-                } else {
-                    document.getElementById('toggle-dualapp').checked = false;
-                    document.getElementById('dual-area').style.display = 'none';
-                    document.getElementById('block-srv2').style.display = 'none';
-                }
+                travarSelectDual(); // Trava a opção repetida
 
                 const hoje = new Date().toISOString().split('T')[0];
-                if(data.data_vencimento < hoje) statusBadge.innerHTML = '<span class="badge danger" style="font-size:14px;">CONTRATO VENCIDO</span>';
-                else statusBadge.innerHTML = '<span class="badge success" style="font-size:14px;">CONTRATO ATIVO</span>';
-
-                cardPontos.style.opacity = '1';
-                cardPontos.style.pointerEvents = 'auto';
-
+                statusBadge.innerHTML = data.data_vencimento < hoje ? '<span class="badge danger">VENCIDO</span>' : '<span class="badge success">ATIVO</span>';
+                
+                cardPontos.style.opacity = '1'; cardPontos.style.pointerEvents = 'auto';
                 await carregarPontos(data.id);
             } else {
-                statusBadge.innerHTML = '<span class="badge" style="background:#e2e8f0; color:#333;">SEM CONTRATO</span>';
-                cardPontos.style.opacity = '0.5';
-                cardPontos.style.pointerEvents = 'none';
+                statusBadge.innerHTML = '<span class="badge">SEM CONTRATO</span>'; cardPontos.style.opacity = '0.5'; cardPontos.style.pointerEvents = 'none';
             }
             document.getElementById('loading-screen').style.display = 'none';
         }
 
-        function aoMudarPlano() {
-            const pid = document.getElementById('plano_id').value;
-            const plano = planosCache.find(p => p.id === pid);
-            if(plano) {
-                document.getElementById('telas_contratadas').value = plano.telas;
-                const hoje = new Date();
-                hoje.setMonth(hoje.getMonth() + plano.validade_meses);
-                document.getElementById('data_vencimento').value = hoje.toISOString().split('T')[0];
+        // Popula e Gerencia os Selects de Servidor
+        function atualizarSelectsServidores() {
+            const sel1 = document.getElementById('servidor_primario');
+            const sel2 = document.getElementById('servidor_secundario');
+            sel1.innerHTML = '<option value="">Selecione...</option>';
+            sel2.innerHTML = '<option value="">Selecione...</option>';
+            
+            servidoresCache.forEach(s => {
+                const opt = `<option value="${s.id}">${s.nome} ${s.alias ? '('+s.alias+')' : ''}</option>`;
+                sel1.innerHTML += opt; 
+                sel2.innerHTML += opt;
+            });
+        }
+
+        window.travarSelectDual = function() {
+            const val1 = document.getElementById('servidor_primario').value;
+            const sel2 = document.getElementById('servidor_secundario');
+            for(let i=0; i<sel2.options.length; i++) {
+                if(sel2.options[i].value === val1 && val1 !== "") {
+                    sel2.options[i].disabled = true;
+                    sel2.options[i].style.color = "#ccc";
+                    if(sel2.value === val1) sel2.value = "";
+                } else {
+                    sel2.options[i].disabled = false;
+                    sel2.options[i].style.color = "var(--text-primary)";
+                }
             }
         }
 
+        function aoMudarPlano() {
+            const plano = planosCache.find(p => p.id === document.getElementById('plano_id').value);
+            if(plano) { document.getElementById('telas_contratadas').value = plano.telas; const h = new Date(); h.setMonth(h.getMonth() + plano.validade_meses); document.getElementById('data_vencimento').value = h.toISOString().split('T')[0]; }
+        }
         function toggleDualApp() {
-            const checked = document.getElementById('toggle-dualapp').checked;
-            document.getElementById('dual-area').style.display = checked ? 'block' : 'none';
+            const chk = document.getElementById('toggle-dualapp').checked;
+            document.getElementById('dual-area').style.display = chk ? 'block' : 'none';
+            document.getElementById('block-srv2').style.display = chk ? 'block' : 'none';
         }
 
         async function salvarAssinatura() {
             const limit = parseInt(document.getElementById('telas_contratadas').value);
-            const uso1 = pontosSrv1.reduce((a,b)=>a+b.telas_ocupadas,0);
-            const uso2 = pontosSrv2.reduce((a,b)=>a+b.telas_ocupadas,0);
-
-            if(uso1 > limit) return alert(`Impossível salvar! Srv1 tem ${uso1} telas em uso, limite é ${limit}.`);
-            if(document.getElementById('toggle-dualapp').checked && uso2 > limit) return alert(`Impossível salvar! Srv2 tem ${uso2} telas em uso.`);
-
+            const uso1 = pontosSrv1.reduce((a,b)=>a+b.telas_ocupadas,0), uso2 = pontosSrv2.reduce((a,b)=>a+b.telas_ocupadas,0);
+            if(uso1 > limit) return alert("Srv1 excede limite.");
+            if(document.getElementById('toggle-dualapp').checked && uso2 > limit) return alert("Srv2 excede limite.");
+            
             const payload = {
                 cliente_id: clienteId,
                 plano_id: document.getElementById('plano_id').value,
@@ -285,85 +301,57 @@
                 is_dual_app: document.getElementById('toggle-dualapp').checked,
                 servidor_secundario_id: document.getElementById('toggle-dualapp').checked ? document.getElementById('servidor_secundario').value : null
             };
-
-            const { error } = await window.supabaseClient.from('assinaturas').upsert({
-                id: assinaturaAtual?.id,
-                ...payload
-            });
-
-            if(error) alert("Erro ao salvar: " + error.message);
-            else { alert("Contrato salvo!"); carregarAssinatura(); }
+            const { error } = await window.supabaseClient.from('assinaturas').upsert({ id: assinaturaAtual?.id, ...payload });
+            if(error) alert(error.message); else { alert("Salvo!"); carregarAssinatura(); }
         }
 
-        async function excluirClienteTotal() {
-            if(confirm("ATENÇÃO: Isso apagará o cliente, o contrato e todos os logins. Confirmar?")) {
-                await window.supabaseClient.from('clientes').delete().eq('id', clienteId);
-                window.location.href = '/pages/clientes/index.html';
-            }
-        }
-
-        // --- PONTOS DE ACESSO ---
+        // --- PONTOS E MODAL INTELIGENTE ---
         async function carregarPontos(assId) {
             const { data } = await window.supabaseClient.from('pontos_acesso').select('*, apps(nome)').eq('assinatura_id', assId);
             pontosSrv1 = []; pontosSrv2 = [];
             const srv1 = document.getElementById('servidor_primario').value;
             const srv2 = document.getElementById('servidor_secundario').value;
-
-            data.forEach(p => {
-                if(p.servidor_id === srv1) pontosSrv1.push(p);
-                else if(p.servidor_id === srv2) pontosSrv2.push(p);
-                else pontosSrv1.push(p);
-            });
-
-            renderLista('lista-srv1', pontosSrv1, 'count-srv1');
-            renderLista('lista-srv2', pontosSrv2, 'count-srv2');
+            data.forEach(p => { if(p.servidor_id === srv1) pontosSrv1.push(p); else if(p.servidor_id === srv2) pontosSrv2.push(p); else pontosSrv1.push(p); });
+            renderLista('lista-srv1', pontosSrv1, 'count-srv1'); renderLista('lista-srv2', pontosSrv2, 'count-srv2');
         }
 
         function renderLista(divId, lista, countId) {
-            const limit = parseInt(document.getElementById('telas_contratadas').value);
-            const used = lista.reduce((a,b)=>a+b.telas_ocupadas,0);
-            
-            document.getElementById(countId).innerText = `${used} / ${limit}`;
-            document.getElementById(countId).style.color = used > limit ? 'red' : 'green';
-
-            document.getElementById(divId).innerHTML = lista.map(p => `
-                <div class="ponto-item">
-                    <div>
-                        <div style="font-weight:600; font-size:13px;">${p.apps?.nome} (${p.telas_ocupadas}t)</div>
-                        <div style="font-size:12px; color:#666;">${p.tipo_acesso==='login'?p.usuario:p.mac_address}</div>
-                    </div>
-                    <button class="btn-sm btn-danger" onclick="delPonto('${p.id}')"><i class="material-icons-round">delete</i></button>
-                </div>
-            `).join('');
+            const limit = parseInt(document.getElementById('telas_contratadas').value), used = lista.reduce((a,b)=>a+b.telas_ocupadas,0);
+            document.getElementById(countId).innerText = `${used} / ${limit}`; document.getElementById(countId).style.color = used > limit ? 'red' : 'green';
+            document.getElementById(divId).innerHTML = lista.map(p => `<div class="ponto-item"><div><div style="font-weight:600; font-size:13px;">${p.apps?.nome} (${p.telas_ocupadas}t)</div><div style="font-size:12px; color:#666;">${p.tipo_acesso==='login'?p.usuario:p.mac_address}</div></div><button class="btn-sm btn-danger" onclick="delPonto('${p.id}')"><i class="material-icons-round">delete</i></button></div>`).join('');
         }
 
         const modalPonto = document.getElementById('ponto-modal');
-        function openModalPonto(target) {
+        
+        window.openModalPonto = function(target) {
             const limit = parseInt(document.getElementById('telas_contratadas').value);
             const lista = target===1 ? pontosSrv1 : pontosSrv2;
             const used = lista.reduce((a,b)=>a+b.telas_ocupadas,0);
-            if(used >= limit) return alert("Limite de telas atingido neste servidor.");
+            if(used >= limit) return alert("Limite de telas atingido.");
+
+            // Identifica Servidor Alvo
+            const srvId = target === 1 ? document.getElementById('servidor_primario').value : document.getElementById('servidor_secundario').value;
+            const srvObj = servidoresCache.find(s => s.id === srvId);
+            document.getElementById('ponto-modal-title').innerText = `Novo Ponto: ${srvObj ? srvObj.nome : 'Servidor'}`;
+
+            // FILTRA APPS: Apenas apps deste servidor
+            const selApp = document.getElementById('ponto-app');
+            selApp.innerHTML = '<option value="">Selecione...</option>';
+            const appsDoServidor = appsCache.filter(a => a.servidor_id === srvId);
             
-            document.getElementById('ponto-target').value = target;
-            modalPonto.classList.add('open');
-            document.getElementById('ponto-form').reset();
+            if(appsDoServidor.length === 0) selApp.innerHTML = '<option value="">Nenhum app compatível</option>';
+            else appsDoServidor.forEach(a => selApp.innerHTML += `<option value="${a.id}">${a.nome}</option>`);
+
+            document.getElementById('ponto-target').value = target; 
+            modalPonto.classList.add('open'); 
+            document.getElementById('ponto-form').reset(); 
             toggleCred();
         }
+
         function closeModalPonto() { modalPonto.classList.remove('open'); }
-
-        function toggleCred() {
-            const t = document.getElementById('ponto-tipo').value;
-            document.getElementById('area-login').style.display = t==='login'?'grid':'none';
-            document.getElementById('area-mac').style.display = t==='mac'?'block':'none';
-        }
-        function checkApp() {
-            const aid = document.getElementById('ponto-app').value;
-            const app = appsCache.find(a => a.id === aid);
-            const ipt = document.getElementById('ponto-telas');
-            if(app && !app.permite_multitela) { ipt.value = 1; ipt.disabled = true; }
-            else { ipt.disabled = false; }
-        }
-
+        function toggleCred() { const t = document.getElementById('ponto-tipo').value; document.getElementById('area-login').style.display = t==='login'?'grid':'none'; document.getElementById('area-mac').style.display = t==='mac'?'block':'none'; }
+        function checkApp() { const aid = document.getElementById('ponto-app').value, app = appsCache.find(a => a.id === aid), ipt = document.getElementById('ponto-telas'); if(app && !app.permite_multitela) { ipt.value = 1; ipt.disabled = true; } else { ipt.disabled = false; } }
+        
         document.getElementById('ponto-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const target = parseInt(document.getElementById('ponto-target').value);
@@ -375,29 +363,11 @@
             if(used + novas > limit) return alert("Limite excedido.");
 
             const srvId = target===1 ? document.getElementById('servidor_primario').value : document.getElementById('servidor_secundario').value;
-
-            const payload = {
-                assinatura_id: assinaturaAtual.id,
-                servidor_id: srvId,
-                app_id: document.getElementById('ponto-app').value,
-                tipo_acesso: document.getElementById('ponto-tipo').value,
-                usuario: document.getElementById('ponto-user').value,
-                senha: document.getElementById('ponto-pass').value,
-                mac_address: document.getElementById('ponto-mac').value,
-                telas_ocupadas: novas,
-                observacao: document.getElementById('ponto-obs').value
-            };
-            const { error } = await window.supabaseClient.from('pontos_acesso').insert([payload]);
-            if(error) alert(error.message);
-            else { closeModalPonto(); carregarPontos(assinaturaAtual.id); }
+            const { error } = await window.supabaseClient.from('pontos_acesso').insert([{ assinatura_id: assinaturaAtual.id, servidor_id: srvId, app_id: document.getElementById('ponto-app').value, tipo_acesso: document.getElementById('ponto-tipo').value, usuario: document.getElementById('ponto-user').value, senha: document.getElementById('ponto-pass').value, mac_address: document.getElementById('ponto-mac').value, telas_ocupadas: novas, observacao: document.getElementById('ponto-obs').value }]);
+            if(error) alert(error.message); else { closeModalPonto(); carregarPontos(assinaturaAtual.id); }
         });
-
-        async function delPonto(id) {
-            if(confirm("Excluir?")) {
-                await window.supabaseClient.from('pontos_acesso').delete().eq('id', id);
-                carregarPontos(assinaturaAtual.id);
-            }
-        }
+        
+        async function delPonto(id) { if(confirm("Excluir?")) { await window.supabaseClient.from('pontos_acesso').delete().eq('id', id); carregarPontos(assinaturaAtual.id); } }
     </script>
 </body>
 </html>

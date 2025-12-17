@@ -4,105 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apps | Pandda</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
-
-    <style>
-        .platform-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); cursor: pointer; }
-        .plat-badge { display: inline-block; background: #e2e8f0; color: #475569; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 4px; margin-bottom: 4px; font-weight: 600; }
-    </style>
+    <style>.platform-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); } .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); cursor: pointer; } .plat-badge { display: inline-block; background: #e2e8f0; color: #475569; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 4px; margin-bottom: 4px; font-weight: 600; }</style>
 </head>
-
 <body data-title="Gerenciar Aplicativos">
-
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
-
     <div class="dashboard-container">
-        
         <div id="sidebar-container"></div>
-
         <div class="main-content">
             <div id="topbar-container"></div>
-
             <main class="page-content">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <div>
-                            <h3>Catálogo de Apps</h3>
-                            <p style="font-size: 13px;">Configure URLs, códigos e compatibilidade.</p>
-                        </div>
-                        <button class="btn-primary" onclick="openModal()">
-                            <i class="material-icons-round">add</i> Novo App
-                        </button>
+                        <div><h3>Catálogo de Apps</h3><p style="font-size: 13px;">Links e compatibilidade.</p></div>
+                        <button class="btn-primary" onclick="openModal()"><i class="material-icons-round">add</i> Novo App</button>
                     </div>
-
                     <div class="table-container">
                         <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>App / Código</th>
-                                    <th>Servidor</th>
-                                    <th>Plataformas</th>
-                                    <th style="text-align: right;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <tr><td colspan="4" style="text-align:center;">Carregando...</td></tr>
-                            </tbody>
+                            <thead><tr><th>App / Código</th><th>Servidor</th><th>Plataformas</th><th>Ativo?</th><th style="text-align: right;">Ações</th></tr></thead>
+                            <tbody id="table-body"><tr><td colspan="5" style="text-align:center;">Carregando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
             </main>
         </div>
     </div>
-
     <div class="modal-overlay" id="app-modal">
         <div class="modal" style="max-width: 700px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">Novo App</h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            
+            <div class="modal-header"><h3 class="modal-title" id="modal-title">Novo App</h3><button class="close-modal" onclick="closeModal()">&times;</button></div>
             <form id="app-form">
                 <input type="hidden" id="app-id">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nome</label>
-                        <input type="text" id="nome" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Servidor</label>
-                        <select id="servidor_id" class="form-control" required>
-                            <option value="">Carregando...</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Código Acesso (DNS)</label>
-                    <input type="text" id="codigo_acesso" class="form-control">
-                </div>
-                
+                <div class="form-row"><div class="form-group"><label>Nome</label><input type="text" id="nome" class="form-control" required></div><div class="form-group"><label>Servidor</label><select id="servidor_id" class="form-control" required><option value="">Carregando...</option></select></div></div>
+                <div class="form-group"><label>Código Acesso (DNS)</label><input type="text" id="codigo_acesso" class="form-control"></div>
                 <div class="form-section-title">URLs Download</div>
-                <div class="form-row">
-                    <div class="form-group"><label>URL 1</label><input type="url" id="url_download_1" class="form-control"></div>
-                    <div class="form-group"><label>URL 2</label><input type="url" id="url_download_2" class="form-control"></div>
-                </div>
-                
+                <div class="form-row"><div class="form-group"><label>URL 1</label><input type="url" id="url_download_1" class="form-control"></div><div class="form-group"><label>URL 2</label><input type="url" id="url_download_2" class="form-control"></div></div>
                 <div class="form-section-title">Códigos Loja</div>
-                <div class="form-row">
-                    <div class="form-group"><label>Loja 1</label><input type="text" id="store_nome_1" class="form-control" value="Downloader"></div>
-                    <div class="form-group"><label>Cód 1</label><input type="text" id="store_codigo_1" class="form-control"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Loja 2</label><input type="text" id="store_nome_2" class="form-control"></div>
-                    <div class="form-group"><label>Cód 2</label><input type="text" id="store_codigo_2" class="form-control"></div>
-                </div>
-
+                <div class="form-row"><div class="form-group"><label>Loja 1</label><input type="text" id="store_nome_1" class="form-control" value="Downloader"></div><div class="form-group"><label>Cód 1</label><input type="text" id="store_codigo_1" class="form-control"></div></div>
+                <div class="form-row"><div class="form-group"><label>Loja 2</label><input type="text" id="store_nome_2" class="form-control"></div><div class="form-group"><label>Cód 2</label><input type="text" id="store_codigo_2" class="form-control"></div></div>
                 <div class="form-section-title">Compatibilidade</div>
                 <div class="platform-grid">
                     <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Android Box"> Android Box</label>
@@ -111,136 +51,48 @@
                     <label class="checkbox-item"><input type="checkbox" name="plataforma" value="LG"> LG</label>
                     <label class="checkbox-item"><input type="checkbox" name="plataforma" value="Roku"> Roku</label>
                     <label class="checkbox-item"><input type="checkbox" name="plataforma" value="iOS"> iOS</label>
-                    <label class="checkbox-item"><input type="checkbox" name="plataforma" value="PC/Web"> PC/Web</label>
                 </div>
-
-                <div class="form-actions">
-                    <button type="button" class="action-btn" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Salvar</button>
-                </div>
+                <div class="form-actions"><button type="button" class="action-btn" onclick="closeModal()">Cancelar</button><button type="submit" class="btn-primary">Salvar</button></div>
             </form>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
-    
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
-
     <script>
-        const modal = document.getElementById('app-modal');
-        const form = document.getElementById('app-form');
-        const selectServidor = document.getElementById('servidor_id');
-
-        // Carrega select de servidores
+        const modal = document.getElementById('app-modal'); const form = document.getElementById('app-form'); const selectServidor = document.getElementById('servidor_id');
         async function loadServidoresSelect() {
-            const { data } = await window.supabaseClient.from('servidores').select('id, nome').order('nome');
+            const { data } = await window.supabaseClient.from('servidores').select('id, nome').eq('ativo', true).order('nome');
             selectServidor.innerHTML = '<option value="">Selecione...</option>';
-            if(data) {
-                data.forEach(s => selectServidor.innerHTML += `<option value="${s.id}">${s.nome}</option>`);
-            }
+            data?.forEach(s => selectServidor.innerHTML += `<option value="${s.id}">${s.nome}</option>`);
         }
-
-        // Listar
         async function fetchApps() {
             const tbody = document.getElementById('table-body');
-            const { data, error } = await window.supabaseClient
-                .from('apps')
-                .select('*, servidores(nome)')
-                .order('created_at', { ascending: false });
-
-            if (error) { tbody.innerHTML = '<tr><td colspan="4">Erro...</td></tr>'; return; }
+            const { data, error } = await window.supabaseClient.from('apps').select('*, servidores(nome)').order('created_at', { ascending: false });
+            if (error) { tbody.innerHTML = '<tr><td colspan="5">Erro...</td></tr>'; return; }
             tbody.innerHTML = '';
-            
             data.forEach(app => {
-                let badges = '';
-                if(app.plataformas) app.plataformas.forEach(p => badges += `<span class="plat-badge">${p}</span>`);
+                let badges = ''; app.plataformas?.forEach(p => badges += `<span class="plat-badge">${p}</span>`);
+                const code = app.codigo_acesso ? `<div style="font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.1); padding:2px 6px; border-radius:4px; display:inline-block;">Cód: ${app.codigo_acesso}</div>` : '';
+                const rowClass = app.ativo ? '' : 'class="row-disabled"';
+                const toggle = `<label class="switch-sm"><input type="checkbox" ${app.ativo?'checked':''} onchange="toggleAtivo('${app.id}', this.checked)"><span class="slider-sm"></span></label>`;
                 
-                const code = app.codigo_acesso 
-                    ? `<div style="font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.1); padding:2px 6px; border-radius:4px; display:inline-block;">Cód: ${app.codigo_acesso}</div>` 
-                    : '';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div style="font-weight:600;">${app.nome}</div>
-                            ${code}
-                        </td>
-                        <td>${app.servidores?.nome || '<span style="color:red">Removido</span>'}</td>
-                        <td>${badges}</td>
-                        <td style="text-align:right;">
-                            <button class="action-btn" onclick="openModal('${app.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button>
-                            <button class="action-btn" onclick="deleteApp('${app.id}')" style="color:#ef4444;"><i class="material-icons-round">delete</i></button>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr ${rowClass}><td><div style="font-weight:600;">${app.nome}</div>${code}</td><td>${app.servidores?.nome || '<span style="color:red">Removido</span>'}</td><td>${badges}</td><td>${toggle}</td><td style="text-align:right;"><button class="action-btn" onclick="openModal('${app.id}')" style="color:#f59e0b;"><i class="material-icons-round">edit</i></button></td></tr>`;
             });
+            document.getElementById('loading-screen').style.display = 'none';
         }
-
-        // Modal Logic
-        window.openModal = async function(id = null) {
-            modal.classList.add('open');
-            document.getElementById('app-id').value = '';
-            form.reset();
-            await loadServidoresSelect();
-            if(id) loadAppData(id);
-        }
-
-        window.closeModal = function() { modal.classList.remove('open'); }
-
+        window.openModal = async (id=null) => { modal.classList.add('open'); document.getElementById('app-id').value=''; form.reset(); await loadServidoresSelect(); if(id) loadAppData(id); }
+        window.closeModal = () => modal.classList.remove('open');
+        window.toggleAtivo = async (id, status) => { await window.supabaseClient.from('apps').update({ativo: status}).eq('id', id); fetchApps(); }
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('app-id').value;
-            const checked = Array.from(document.querySelectorAll('input[name="plataforma"]:checked')).map(cb => cb.value);
-
-            const payload = {
-                nome: document.getElementById('nome').value,
-                servidor_id: document.getElementById('servidor_id').value,
-                codigo_acesso: document.getElementById('codigo_acesso').value,
-                url_download_1: document.getElementById('url_download_1').value,
-                url_download_2: document.getElementById('url_download_2').value,
-                store_nome_1: document.getElementById('store_nome_1').value,
-                store_codigo_1: document.getElementById('store_codigo_1').value,
-                store_nome_2: document.getElementById('store_nome_2').value,
-                store_codigo_2: document.getElementById('store_codigo_2').value,
-                plataformas: checked
-            };
-
+            e.preventDefault(); const id = document.getElementById('app-id').value; const checked = Array.from(document.querySelectorAll('input[name="plataforma"]:checked')).map(cb => cb.value);
+            const payload = { nome: document.getElementById('nome').value, servidor_id: document.getElementById('servidor_id').value, codigo_acesso: document.getElementById('codigo_acesso').value, url_download_1: document.getElementById('url_download_1').value, url_download_2: document.getElementById('url_download_2').value, store_nome_1: document.getElementById('store_nome_1').value, store_codigo_1: document.getElementById('store_codigo_1').value, store_nome_2: document.getElementById('store_nome_2').value, store_codigo_2: document.getElementById('store_codigo_2').value, plataformas: checked };
             const { error } = await window.supabaseClient.from('apps').upsert({ id: id || undefined, ...payload });
-            
-            if(error) alert("Erro: " + error.message);
-            else { closeModal(); fetchApps(); }
+            if(error) alert("Erro: " + error.message); else { closeModal(); fetchApps(); }
         });
-
-        async function loadAppData(id) {
-            const { data } = await window.supabaseClient.from('apps').select('*').eq('id', id).single();
-            if(data) {
-                document.getElementById('app-id').value = data.id;
-                document.getElementById('nome').value = data.nome;
-                document.getElementById('servidor_id').value = data.servidor_id;
-                document.getElementById('codigo_acesso').value = data.codigo_acesso||'';
-                document.getElementById('url_download_1').value = data.url_download_1||'';
-                document.getElementById('url_download_2').value = data.url_download_2||'';
-                document.getElementById('store_nome_1').value = data.store_nome_1||'';
-                document.getElementById('store_codigo_1').value = data.store_codigo_1||'';
-                document.getElementById('store_nome_2').value = data.store_nome_2||'';
-                document.getElementById('store_codigo_2').value = data.store_codigo_2||'';
-                
-                document.querySelectorAll('input[name="plataforma"]').forEach(cb => {
-                    cb.checked = data.plataformas?.includes(cb.value);
-                });
-            }
-        }
-
-        window.deleteApp = async function(id) {
-            if(confirm("Excluir este app?")) {
-                await window.supabaseClient.from('apps').delete().eq('id', id);
-                fetchApps();
-            }
-        }
-
-        window.onload = () => { setTimeout(fetchApps, 500); };
+        async function loadAppData(id) { const { data } = await window.supabaseClient.from('apps').select('*').eq('id', id).single(); if(data) { document.getElementById('app-id').value = data.id; document.getElementById('nome').value = data.nome; document.getElementById('servidor_id').value = data.servidor_id; document.getElementById('codigo_acesso').value = data.codigo_acesso||''; document.getElementById('url_download_1').value = data.url_download_1||''; document.getElementById('url_download_2').value = data.url_download_2||''; document.getElementById('store_nome_1').value = data.store_nome_1||''; document.getElementById('store_codigo_1').value = data.store_codigo_1||''; document.getElementById('store_nome_2').value = data.store_nome_2||''; document.getElementById('store_codigo_2').value = data.store_codigo_2||''; document.querySelectorAll('input[name="plataforma"]').forEach(cb => cb.checked = data.plataformas?.includes(cb.value)); } }
+        window.onload = () => setTimeout(fetchApps, 500);
     </script>
 </body>
 </html>
