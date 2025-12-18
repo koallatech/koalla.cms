@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes | Pandda</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
+    
     <script>(function(){const s=localStorage.getItem('pandda-theme')||'light';document.documentElement.setAttribute('data-theme',s);})();</script>
 </head>
+
 <body data-title="Carteira de Clientes">
+
     <div id="loading-screen"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div><p style="margin-top: 15px;">Carregando...</p></div>
+
     <div class="dashboard-container">
         <div id="sidebar-container"></div>
         <div class="main-content">
@@ -18,67 +23,189 @@
             <main class="page-content">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <div><h3>Meus Clientes</h3><p style="font-size: 13px;">Visão geral de vencimentos.</p></div>
-                        <button class="btn-primary" onclick="openModalQuick()"><i class="material-icons-round">person_add</i> Novo Cliente</button>
+                        <div>
+                            <h3>Meus Clientes</h3>
+                            <p style="font-size: 13px;">Gerencie acessos e cobranças.</p>
+                        </div>
+                        <button class="btn-primary" onclick="openModalQuick()">
+                            <i class="material-icons-round">person_add</i> Novo Cliente
+                        </button>
                     </div>
+
                     <div style="margin-bottom: 15px;">
                         <input type="text" id="search-input" class="form-control" placeholder="Buscar por nome ou whatsapp..." onkeyup="filtrarTabela()">
                     </div>
+
                     <div class="table-container">
                         <table class="modern-table">
-                            <thead><tr><th>Cliente</th><th>Vencimento</th><th>Status</th><th>Telas</th><th style="text-align: right;">Ações</th></tr></thead>
-                            <tbody id="table-body"><tr><td colspan="5" style="text-align:center;">Carregando...</td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Telas</th>
+                                    <th style="text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </main>
         </div>
     </div>
+
     <div class="modal-overlay" id="quick-client-modal">
         <div class="modal" style="max-width: 400px;">
-            <div class="modal-header"><h3 class="modal-title">Adicionar Cliente</h3><button class="close-modal" onclick="closeModalQuick()">&times;</button></div>
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Cliente</h3>
+                <button class="close-modal" onclick="closeModalQuick()">&times;</button>
+            </div>
             <form id="quick-form">
                 <div class="form-group"><label>Nome do Cliente</label><input type="text" id="quick-nome" class="form-control" placeholder="Ex: João Silva" required></div>
-                <div class="form-group"><label>WhatsApp</label><div class="phone-group"><select id="quick-ddi"><option value="55">+55</option><option value="1">+1</option><option value="351">+351</option><option value="">Outro</option></select><input type="tel" id="quick-phone" placeholder="(11) 99999-9999" required oninput="mascaraTelefone(this)" onpaste="handlePaste(event)"></div><small style="font-size: 11px; color: var(--text-secondary);">O código do país será salvo junto com o número.</small></div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <div class="phone-group">
+                        <select id="quick-ddi"><option value="55">+55</option><option value="1">+1</option><option value="351">+351</option><option value="">Outro</option></select>
+                        <input type="tel" id="quick-phone" placeholder="(11) 99999-9999" required oninput="mascaraTelefone(this)" onpaste="handlePaste(event)">
+                    </div>
+                    <small style="font-size: 11px; color: var(--text-secondary);">O código do país será salvo junto com o número.</small>
+                </div>
                 <div class="form-actions"><button type="button" class="action-btn" onclick="closeModalQuick()">Cancelar</button><button type="submit" class="btn-primary">Criar e Configurar</button></div>
             </form>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/assets/js/supabase-client.js"></script>
     <script src="/assets/js/components.js"></script>
     <script src="/assets/js/layout.js"></script>
+
     <script>
+        // Funções de Telefone
         function mascaraTelefone(input) { let v = input.value.replace(/\D/g, ""); if (v.length > 11) v = v.substring(0, 11); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); v = v.replace(/(\d)(\d{4})$/, "$1-$2"); input.value = v; }
         function handlePaste(e) { e.preventDefault(); let clean = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, ""); if (clean.startsWith("55") && clean.length > 11) { clean = clean.substring(2); document.getElementById('quick-ddi').value = "55"; } const input = document.getElementById('quick-phone'); input.value = clean; mascaraTelefone(input); }
 
+        // --- LISTAGEM COM BOTÃO NOTIFICAR ---
         async function fetchClientes() {
             const tbody = document.getElementById('table-body');
-            const { data, error } = await window.supabaseClient.from('clientes').select('*, assinaturas(data_vencimento, telas_contratadas)').order('created_at', { ascending: false });
-            if (error) return; tbody.innerHTML = '';
-            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhum cliente.</td></tr>'; return; }
+            
+            // Agora trazemos o campo 'notificado' da assinatura
+            const { data, error } = await window.supabaseClient
+                .from('clientes')
+                .select('*, assinaturas(id, data_vencimento, telas_contratadas, notificado)') 
+                .order('created_at', { ascending: false });
+
+            if (error) return; 
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhum cliente.</td></tr>'; 
+                return; 
+            }
+            
             const hoje = new Date().toISOString().split('T')[0];
+            
             data.forEach(cli => {
-                let statusHtml = '<span class="badge" style="background:#e2e8f0; color:#64748b;">Sem Plano</span>', vencimento = '-', telas = '-';
-                if (cli.bloqueado) { statusHtml = '<span class="badge danger" style="background: black; color: white;">BLOQUEADO</span>'; } 
-                else { const ass = (cli.assinaturas && cli.assinaturas.length > 0) ? cli.assinaturas[0] : cli.assinaturas; if (ass) { vencimento = ass.data_vencimento.split('-').reverse().join('/'); telas = `${ass.telas_contratadas} tela(s)`; statusHtml = ass.data_vencimento < hoje ? '<span class="badge danger">VENCIDO</span>' : '<span class="badge success">ATIVO</span>'; } }
+                let statusHtml = '<span class="badge" style="background:#e2e8f0; color:#64748b;">Sem Plano</span>';
+                let vencimento = '-';
+                let telas = '-';
+                let btnNotificar = ''; // O HTML do botão de notificação
                 
+                const ass = (cli.assinaturas && cli.assinaturas.length > 0) ? cli.assinaturas[0] : cli.assinaturas;
+
+                if (ass) {
+                    const dataFormatada = ass.data_vencimento.split('-').reverse().join('/');
+                    vencimento = dataFormatada;
+                    telas = `${ass.telas_contratadas} tela(s)`;
+                    
+                    if (ass.data_vencimento < hoje) statusHtml = '<span class="badge danger">VENCIDO</span>';
+                    else statusHtml = '<span class="badge success">ATIVO</span>';
+
+                    // LÓGICA DO BOTÃO DE NOTIFICAÇÃO
+                    if (ass.notificado) {
+                        // Já notificado: Mostra Check Duplo Azul
+                        btnNotificar = `<span title="Já notificado" style="cursor:help; display:inline-flex; align-items:center; color:#3b82f6; margin-right:10px;"><i class="material-icons-round" style="font-size:18px;">done_all</i></span>`;
+                    } else {
+                        // Não notificado: Botão WhatsApp Verde
+                        // Passamos ID da assinatura, telefone, nome e data para a função
+                        btnNotificar = `
+                            <button class="action-btn" title="Enviar Cobrança" onclick="notificarCliente('${ass.id}', '${cli.whatsapp}', '${cli.nome}', '${dataFormatada}')" style="color: #25D366; background: rgba(37, 211, 102, 0.1); margin-right: 5px;">
+                                <i class="material-icons-round">whatsapp</i>
+                            </button>
+                        `;
+                    }
+                }
+
+                if (cli.bloqueado) {
+                    statusHtml = '<span class="badge danger" style="background: black; color: white;">BLOQUEADO</span>';
+                    btnNotificar = ''; // Não cobra cliente bloqueado
+                }
+
                 const tr = document.createElement('tr');
                 if(cli.bloqueado) tr.style.opacity = "0.7";
-                tr.innerHTML = `<td data-label="Cliente"><div style="font-weight:600; font-size:15px;">${cli.nome}</div><div style="font-size:13px; color:var(--text-secondary); display:flex; gap:5px; align-items:center;"><i class="material-icons-round" style="font-size:14px; color:#25D366;">chat</i> ${cli.whatsapp}</div></td><td data-label="Vencimento"><span style="font-weight:500;">${vencimento}</span></td><td data-label="Status">${statusHtml}</td><td data-label="Telas">${telas}</td><td data-label="Ações" style="text-align: right;"><button class="btn-primary btn-sm" style="width:auto; display:inline-flex;" onclick="gerenciar('${cli.id}')">Gerenciar</button></td>`;
+                
+                tr.innerHTML = `
+                    <td data-label="Cliente">
+                        <div style="font-weight:600; font-size:15px;">${cli.nome}</div>
+                        <div style="font-size:13px; color:var(--text-secondary); display:flex; gap:5px; align-items:center;">
+                            <i class="material-icons-round" style="font-size:14px; color:#25D366;">chat</i> ${cli.whatsapp}
+                        </div>
+                    </td>
+                    <td data-label="Vencimento"><span style="font-weight:500;">${vencimento}</span></td>
+                    <td data-label="Status">${statusHtml}</td>
+                    <td data-label="Telas">${telas}</td>
+                    <td data-label="Ações" style="text-align: right; display: flex; justify-content: flex-end; align-items: center;">
+                        ${btnNotificar} <button class="btn-primary btn-sm" style="width:auto; display:inline-flex;" onclick="gerenciar('${cli.id}')">Gerenciar</button>
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
         }
+
+        // --- FUNÇÃO DE NOTIFICAÇÃO ---
+        window.notificarCliente = async function(assinaturaId, telefone, nome, dataVencimento) {
+            // 1. Monta mensagem
+            const msg = `Olá ${nome}, sua assinatura vence dia *${dataVencimento}*. Segue o link para renovação.`;
+            const link = `https://wa.me/${telefone}?text=${encodeURIComponent(msg)}`;
+            
+            // 2. Abre WhatsApp
+            window.open(link, '_blank');
+
+            // 3. Atualiza banco (Marca como notificado)
+            await window.supabaseClient
+                .from('assinaturas')
+                .update({ notificado: true })
+                .eq('id', assinaturaId);
+
+            // 4. Atualiza tabela visualmente
+            fetchClientes();
+        }
+
         window.gerenciar = (id) => window.location.href = `/pages/clientes/gerenciar.html?id=${id}`;
+        
+        // Modal Rápido
         const modalQuick = document.getElementById('quick-client-modal');
         window.openModalQuick = () => { modalQuick.classList.add('open'); document.getElementById('quick-form').reset(); };
         window.closeModalQuick = () => { modalQuick.classList.remove('open'); };
+        
         document.getElementById('quick-form').addEventListener('submit', async (e) => {
-            e.preventDefault(); const nome = document.getElementById('quick-nome').value; const whatsappFull = document.getElementById('quick-ddi').value + document.getElementById('quick-phone').value.replace(/\D/g, "");
+            e.preventDefault(); 
+            const nome = document.getElementById('quick-nome').value; 
+            const whatsappFull = document.getElementById('quick-ddi').value + document.getElementById('quick-phone').value.replace(/\D/g, "");
+            
             const { data, error } = await window.supabaseClient.from('clientes').insert([{ nome: nome, whatsapp: whatsappFull }]).select().single();
-            if(error) alert("Erro: " + error.message); else window.location.href = `/pages/clientes/gerenciar.html?id=${data.id}`;
+            if(error) alert("Erro: " + error.message); 
+            else window.location.href = `/pages/clientes/gerenciar.html?id=${data.id}`;
         });
-        window.filtrarTabela = () => { const val = document.getElementById('search-input').value.toLowerCase(); document.querySelectorAll('tbody tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none'); }
+
+        window.filtrarTabela = () => { 
+            const val = document.getElementById('search-input').value.toLowerCase(); 
+            document.querySelectorAll('tbody tr').forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none'); 
+        }
+        
         window.onload = () => setTimeout(fetchClientes, 500);
     </script>
 </body>
