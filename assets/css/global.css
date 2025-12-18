@@ -27,29 +27,59 @@
 body { 
     background-color: var(--bg-body); 
     color: var(--text-primary); 
-    overflow-x: hidden;
+    overflow-x: hidden; /* Evita rolagem horizontal geral */
 }
 
-/* --- LAYOUT --- */
-.dashboard-container { display: flex; min-height: 100vh; width: 100%; }
-.sidebar { width: var(--sidebar-width); background: var(--bg-card); border-right: 1px solid var(--border-color); position: fixed; height: 100%; z-index: 100; transition: transform 0.3s ease; }
-.main-content { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; min-width: 0; transition: margin-left 0.3s ease; }
+/* --- LAYOUT ESTRUTURAL --- */
+.dashboard-container { display: flex; min-height: 100vh; width: 100%; position: relative; overflow: hidden; }
 
-/* --- SIDEBAR --- */
-.sidebar-header { height: var(--header-height); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-color); }
+.sidebar { 
+    width: var(--sidebar-width); 
+    background: var(--bg-card); 
+    border-right: 1px solid var(--border-color); 
+    position: fixed; 
+    height: 100%; 
+    z-index: 100; 
+    transition: transform 0.3s ease, width 0.3s ease; /* Adicionado transition para width */
+}
+
+.main-content { 
+    flex: 1; 
+    margin-left: var(--sidebar-width); 
+    display: flex; 
+    flex-direction: column; 
+    min-width: 0; 
+    transition: margin-left 0.3s ease;
+    width: calc(100% - var(--sidebar-width)); /* Garante largura correta */
+}
+
+/* --- SIDEBAR COMPONENTS --- */
+.sidebar-header { height: var(--header-height); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-color); white-space: nowrap; overflow: hidden; }
 .sidebar-header h2 { font-size: 20px; display: flex; align-items: center; color: var(--text-primary); }
 .logo-icon { color: var(--primary-color); margin-right: 10px; font-size: 28px; }
 .sidebar-menu { list-style: none; padding: 15px; }
 .sidebar-menu li { margin-bottom: 8px; }
-.sidebar-menu a { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: var(--text-secondary); border-radius: 8px; transition: 0.2s; font-weight: 500; }
+.sidebar-menu a { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: var(--text-secondary); border-radius: 8px; transition: 0.2s; font-weight: 500; white-space: nowrap; overflow: hidden; }
 .sidebar-menu a:hover { background: rgba(37, 99, 235, 0.05); color: var(--primary-color); }
 .sidebar-menu a.active { background: var(--primary-color); color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
-.sidebar-menu a i { margin-right: 12px; font-size: 22px; }
+.sidebar-menu a i { margin-right: 12px; font-size: 22px; flex-shrink: 0; }
 
 /* --- TOPBAR --- */
 .topbar { height: var(--header-height); background: var(--bg-card); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 90; }
 .topbar-left, .topbar-right { display: flex; align-items: center; gap: 15px; }
-.toggle-btn { cursor: pointer; color: var(--text-secondary); padding: 5px; border-radius: 5px; display: none; } 
+
+/* CORREÇÃO 1: Botão Toggle visível sempre */
+.toggle-btn { 
+    cursor: pointer; 
+    color: var(--text-secondary); 
+    padding: 8px; 
+    border-radius: 8px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+} 
+.toggle-btn:hover { background: rgba(0,0,0,0.05); }
+
 .action-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .action-btn:hover { background: rgba(0,0,0,0.05); color: var(--primary-color); }
 .user-info { display: flex; align-items: center; gap: 10px; }
@@ -58,28 +88,26 @@ body {
 .user-avatar { width: 35px; height: 35px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 
 /* --- CONTENT --- */
-.page-content { padding: 25px; flex: 1; overflow-x: hidden; }
-.card { background: var(--bg-card); border-radius: 12px; padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
+.page-content { padding: 25px; flex: 1; width: 100%; }
+.card { background: var(--bg-card); border-radius: 12px; padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; word-wrap: break-word; }
 
-/* --- FORMS MODERNIZADOS --- */
+/* --- FORMS & GRIDS --- */
 .manager-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
 
-/* Inputs Base */
+/* Inputs Modernos */
 .form-control { 
     width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; 
     background: var(--bg-body); color: var(--text-primary); font-size: 14px; outline: none; transition: 0.2s;
-    -webkit-appearance: none; -moz-appearance: none; appearance: none; /* Remove estilo nativo */
+    -webkit-appearance: none; -moz-appearance: none; appearance: none; 
 }
 .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-/* Select Customizado (Seta SVG) */
 select.form-control {
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto; padding-right: 30px; cursor: pointer;
 }
-/* Remove setas de número */
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
 
@@ -90,7 +118,6 @@ input[type=number] { -moz-appearance: textfield; }
 .btn-primary { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap; justify-content: center; }
 .btn-primary:hover { background: var(--primary-hover); }
 
-/* Botão Secundário (Cinza/Dark) */
 .btn-secondary {
     background-color: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1;
     padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;
@@ -100,7 +127,6 @@ input[type=number] { -moz-appearance: textfield; }
 [data-theme="dark"] .btn-secondary { background-color: #334155; color: #e2e8f0; border-color: #475569; }
 [data-theme="dark"] .btn-secondary:hover { background-color: #475569; }
 
-/* Botões de Ação Especiais */
 .btn-block-user { background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 14px; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
 .btn-unblock-user { background-color: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2); }
 .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
@@ -109,13 +135,12 @@ input[type=number] { -moz-appearance: textfield; }
 .server-box { padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid transparent; }
 .server-box.primary { background-color: #f8fafc; border-color: #e2e8f0; }
 .server-box.dual { background-color: #eff6ff; border-color: #dbeafe; }
-
 [data-theme="dark"] .server-box.primary { background-color: rgba(255, 255, 255, 0.03); border-color: #334155; }
 [data-theme="dark"] .server-box.dual { background-color: rgba(37, 99, 235, 0.1); border-color: rgba(37, 99, 235, 0.2); }
 
 /* --- TABELAS --- */
 .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.modern-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.modern-table { width: 100%; border-collapse: collapse; min-width: 600px; /* Garante layout no desktop, mobile reseta isso */ }
 .modern-table th { text-align: left; padding: 12px 15px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
 .modern-table td { padding: 15px; font-size: 14px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); vertical-align: middle; }
 .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
@@ -146,12 +171,20 @@ input:checked + .slider-sm:before { transform: translateX(16px); }
    RESPONSIVIDADE (MOBILE & TABLET)
    ============================================================ */
 
+/* COLLAPSED MODE (DESKTOP) */
+body.collapsed .sidebar { width: 80px; }
+body.collapsed .sidebar .logo-icon { margin-right: 0; }
+body.collapsed .sidebar span { display: none; }
+body.collapsed .main-content { margin-left: 80px; width: calc(100% - 80px); }
+
+/* TABLET */
 @media (max-width: 1024px) {
     .manager-grid { grid-template-columns: 1fr; }
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
-    /* Sidebar */
+    /* Sidebar Off-canvas */
     .sidebar { transform: translateX(-100%); width: 260px; }
     .sidebar.mobile-active { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
     .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
@@ -160,30 +193,43 @@ input:checked + .slider-sm:before { transform: translateX(16px); }
     /* Layout */
     .main-content { margin-left: 0; width: 100%; }
     .topbar { padding: 0 15px; }
-    .toggle-btn { display: block; }
-    .user-details, .user-avatar { display: none; }
+    .user-details, .user-avatar { display: none; } /* Oculta user info no mobile para caber o toggle */
     .page-content { padding: 15px; }
     .card { padding: 15px; }
     .form-row { grid-template-columns: 1fr; }
     .btn-primary { width: 100%; margin-top: 10px; }
 
-    /* MOBILE TABLE TO CARDS */
+    /* CORREÇÃO 2: CARD WIDTH NO MOBILE */
+    /* Reseta a largura mínima da tabela para caber na tela */
+    .modern-table { min-width: 0 !important; } 
+    
+    /* Esconde o header da tabela */
     .modern-table thead { display: none; }
+    
+    /* Transforma tudo em bloco */
     .modern-table, .modern-table tbody, .modern-table tr, .modern-table td { display: block; width: 100%; }
     
+    /* Estilo do Cartão */
     .modern-table tr { 
         background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; 
         margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); overflow: hidden; 
     }
+    
+    /* Estilo da Linha do Cartão */
     .modern-table td { 
         display: flex; justify-content: space-between; align-items: center; text-align: right; 
         padding: 12px 15px; border-bottom: 1px solid var(--border-color); position: relative; 
+        word-break: break-word; /* Quebra palavras longas se precisar */
     }
     .modern-table tr td:last-child { border-bottom: none; background-color: rgba(0,0,0,0.02); justify-content: flex-end; }
+    
+    /* Labels (Esquerda) */
     .modern-table td::before { 
         content: attr(data-label); font-weight: 600; font-size: 12px; color: var(--text-secondary); 
-        text-transform: uppercase; margin-right: 15px; text-align: left; 
+        text-transform: uppercase; margin-right: 15px; text-align: left; flex-shrink: 0;
     }
+    
+    /* Header do Cartão (1ª linha) */
     .modern-table td:first-child { 
         background-color: rgba(37, 99, 235, 0.05); flex-direction: column; align-items: flex-start; text-align: left; gap: 5px; 
     }
