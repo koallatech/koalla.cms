@@ -62,7 +62,7 @@ body {
 .page-content { padding: 25px; flex: 1; width: 100%; }
 .card { background: var(--bg-card); border-radius: 12px; padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; word-wrap: break-word; }
 
-/* --- GRID DE GERENCIAMENTO (DESKTOP FLUIDO) --- */
+/* --- GRID DE GERENCIAMENTO (DESKTOP) --- */
 .manager-grid { display: grid; grid-template-columns: minmax(380px, 1fr) 1.5fr; gap: 25px; align-items: start; }
 
 /* --- FORMS --- */
@@ -79,16 +79,12 @@ input[type=number] { -moz-appearance: textfield; }
 /* --- BUTTONS --- */
 .btn-primary { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap; justify-content: center; transition: 0.2s; }
 .btn-primary:hover { background: var(--primary-hover); }
-
-/* Botão Cancelar (Ghost) */
 .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid transparent; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; }
 .btn-ghost:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
-
 .btn-secondary { background-color: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 14px; transition: 0.2s; }
 .btn-secondary:hover { background-color: #cbd5e1; }
 [data-theme="dark"] .btn-secondary { background-color: #334155; color: #e2e8f0; border-color: #475569; }
 [data-theme="dark"] .btn-secondary:hover { background-color: #475569; }
-
 .btn-block-user { background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-size: 14px; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
 .btn-unblock-user { background-color: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2); }
 .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
@@ -109,18 +105,14 @@ input[type=number] { -moz-appearance: textfield; }
 .badge.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
 .badge.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
-/* --- MODAIS CORRIGIDOS --- */
+/* --- MODAIS --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(2px); padding: 20px; }
 .modal-overlay.open { display: flex; }
 .modal { background: var(--bg-card); width: 100%; max-width: 500px; padding: 25px; border-radius: 16px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-
-/* Header do Modal */
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
 .modal-header h3 { font-size: 18px; margin: 0; }
 .close-modal { background: transparent; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; line-height: 1; padding: 5px; border-radius: 50%; display:flex; align-items:center; justify-content:center; transition:0.2s; }
 .close-modal:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
-
-/* Footer do Modal */
 .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px; }
 
 /* --- TOAST & FEEDBACK --- */
@@ -130,7 +122,6 @@ input[type=number] { -moz-appearance: textfield; }
 .toast i { color: #22c55e; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
 .auto-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-card); padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 10001; text-align: center; display: none; border: 1px solid var(--border-color); min-width: 300px; }
 .auto-modal.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .auto-modal h3 { margin: 15px 0 5px 0; color: var(--text-primary); }
@@ -139,11 +130,9 @@ input[type=number] { -moz-appearance: textfield; }
 .auto-modal .icon-box i { font-size: 30px; }
 @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 
-/* --- LOADING --- */
+/* --- UTILITÁRIOS --- */
 #loading-screen { position: fixed; inset: 0; background: var(--bg-body); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* --- UTILITÁRIOS --- */
 .row-disabled { opacity: 0.6; background-color: rgba(0,0,0,0.02); }
 .row-disabled td { text-decoration: line-through; color: var(--text-secondary); }
 .switch-sm { position: relative; display: inline-block; width: 34px; height: 18px; }
@@ -173,77 +162,71 @@ body.collapsed .main-content { margin-left: 80px; width: calc(100% - 80px); }
 }
 
 @media (max-width: 768px) {
-    /* Sidebar Off-canvas */
+    /* Sidebar */
     .sidebar { transform: translateX(-100%); width: 260px; }
     .sidebar.mobile-active { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
     .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
     .sidebar-overlay.active { display: block; }
     
     /* Layout */
-    .main-content { margin-left: 0; width: 100%; }
+    .main-content { margin-left: 0; width: 100%; overflow-x: hidden; }
     .topbar { padding: 0 15px; }
+    .page-content { padding: 20px; width: 100%; box-sizing: border-box; } /* Padding aumentado */
+
+    /* 1. CORREÇÃO: Cards Gerais (Index) agora têm padding de volta */
+    .card { padding: 20px; width: 100%; border-radius: 12px; overflow: hidden; }
+    
+    /* 2. CORREÇÃO: Header do Card (Título + Botão) Empilhado */
+    /* Isso afeta o div principal que segura o h3 e o button */
+    .card > div:first-child { 
+        flex-direction: column; align-items: flex-start; gap: 15px; 
+    }
+    
+    /* Botão não fica gigante, mas ocupa uma largura confortável */
+    .btn-primary { width: auto; margin-top: 0; align-self: stretch; }
+
+    /* Esconde User info */
     .user-details, .user-avatar { display: none; }
-    .page-content { padding: 15px; }
-    .card { padding: 15px; }
     .form-row { grid-template-columns: 1fr; }
-    .btn-primary { width: 100%; margin-top: 10px; }
 
-    /* CARD WIDTH NO MOBILE - Correção Definitiva */
-    .modern-table { min-width: 0 !important; } 
-    .modern-table thead { display: none; }
-    .modern-table, .modern-table tbody, .modern-table tr, .modern-table td { display: block; width: 100%; }
+    /* --- ACCORDION ESPECÍFICO (Gerenciar) --- */
+    .manager-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; }
     
-    /* Estilo do Cartão */
-    .modern-table tr { 
-        background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; 
-        margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); overflow: hidden; 
-    }
-    
-    /* Estilo da Linha do Cartão */
-    .modern-table td { 
-        display: flex; justify-content: space-between; align-items: center; text-align: right; 
-        padding: 12px 15px; border-bottom: 1px solid var(--border-color); position: relative; 
-        word-break: break-word;
-    }
-    .modern-table tr td:last-child { border-bottom: none; background-color: rgba(0,0,0,0.02); justify-content: flex-end; }
-    
-    /* Labels */
-    .modern-table td::before { 
-        content: attr(data-label); font-weight: 600; font-size: 12px; color: var(--text-secondary); 
-        text-transform: uppercase; margin-right: 15px; text-align: left; flex-shrink: 0;
-    }
-    .modern-table td:first-child { 
-        background-color: rgba(37, 99, 235, 0.05); flex-direction: column; align-items: flex-start; text-align: left; gap: 5px; 
-    }
-    .modern-table td:first-child::before { display: none; }
-
-    /* ACCORDION MOBILE (Gerenciar) */
-    .manager-grid { display: flex; flex-direction: column; gap: 15px; }
-    .card { padding: 0; overflow: hidden; }
+    /* Exceção: Cards do Accordion não devem ter padding no container pai */
+    .manager-grid .card { padding: 0; }
     
     .card-header-mobile { 
         display: flex; justify-content: space-between; align-items: center;
-        padding: 20px; background: var(--bg-card); cursor: pointer;
+        padding: 18px 20px; background: var(--bg-card); cursor: pointer;
         font-weight: 700; font-size: 15px; color: var(--text-primary);
         border-bottom: 1px solid transparent; transition: 0.2s;
     }
-    .card-header-mobile i.chevron { transition: transform 0.3s; }
     
-    /* Estado Aberto */
-    .card.active .card-header-mobile { 
-        border-bottom: 1px solid var(--border-color); 
-        background: rgba(37, 99, 235, 0.03); color: var(--primary-color);
-    }
-    .card.active .card-header-mobile i.chevron { transform: rotate(180deg); }
+    /* Header Content (Titulo + Resumo) */
+    .header-content { display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+    .header-title { font-weight: 700; font-size: 15px; color: var(--text-primary); }
+    .header-summary { font-size: 12px; color: var(--text-secondary); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+    
+    .card-header-mobile i.chevron { transition: transform 0.3s; font-size: 24px; color: var(--text-secondary); }
+    
+    .card.active .card-header-mobile { border-bottom: 1px solid var(--border-color); background: rgba(37, 99, 235, 0.03); }
+    .card.active .header-title { color: var(--primary-color); }
+    .card.active .card-header-mobile i.chevron { transform: rotate(180deg); color: var(--primary-color); }
 
-    /* Conteúdo do Card */
-    .card-body { 
-        display: none; padding: 20px; animation: slideDown 0.3s ease;
-    }
+    .card-body { display: none; padding: 20px; animation: slideDown 0.3s ease; }
     .card.active .card-body { display: block; }
+    .card-actions-bottom { order: 99; margin-top: 10px; }
 
-    /* Botão de Bloqueio no final */
-    .card-actions-bottom { order: 99; margin-top: 20px; }
+    /* --- TABELAS (Cards na Listagem) --- */
+    .modern-table { min-width: 0 !important; } 
+    .modern-table thead { display: none; }
+    .modern-table, .modern-table tbody, .modern-table tr, .modern-table td { display: block; width: 100%; }
+    .modern-table tr { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    .modern-table td { display: flex; justify-content: space-between; align-items: center; text-align: right; padding: 15px; border-bottom: 1px solid var(--border-color); word-break: break-word; }
+    .modern-table tr td:last-child { border-bottom: none; background-color: rgba(0,0,0,0.02); justify-content: flex-end; }
+    .modern-table td::before { content: attr(data-label); font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; margin-right: 15px; text-align: left; flex-shrink: 0; }
+    .modern-table td:first-child { background-color: rgba(37, 99, 235, 0.05); flex-direction: column; align-items: flex-start; text-align: left; gap: 5px; }
+    .modern-table td:first-child::before { display: none; }
 }
 
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
