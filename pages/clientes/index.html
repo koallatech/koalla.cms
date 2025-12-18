@@ -25,7 +25,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                         <div>
                             <h3>Meus Clientes</h3>
-                            <p style="font-size: 13px;">Gerencie acessos e cobranças.</p>
+                            <p style="font-size: 13px;">Gerencie acessos, cobranças e renovações.</p>
                         </div>
                         <button class="btn-primary" onclick="openModalQuick()">
                             <i class="material-icons-round">person_add</i> Novo Cliente
@@ -88,16 +88,25 @@
         function mascaraTelefone(input) { let v = input.value.replace(/\D/g, ""); if (v.length > 11) v = v.substring(0, 11); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); v = v.replace(/(\d)(\d{4})$/, "$1-$2"); input.value = v; }
         function handlePaste(e) { e.preventDefault(); let clean = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, ""); if (clean.startsWith("55") && clean.length > 11) { clean = clean.substring(2); document.getElementById('quick-ddi').value = "55"; } const input = document.getElementById('quick-phone'); input.value = clean; mascaraTelefone(input); }
 
-        // --- LISTAGEM COM BOTÃO NOTIFICAR (CORRIGIDO) ---
         async function fetchClientes() {
             const tbody = document.getElementById('table-body');
             
+            // JOIN TRIPLO: Cliente -> Assinatura -> Plano (para pegar validade_meses)
             const { data, error } = await window.supabaseClient
                 .from('clientes')
-                .select('*, assinaturas(id, data_vencimento, telas_contratadas, notificado)') 
+                .select(`
+                    *, 
+                    assinaturas (
+                        id, 
+                        data_vencimento, 
+                        telas_contratadas, 
+                        notificado,
+                        planos ( validade_meses )
+                    )
+                `) 
                 .order('created_at', { ascending: false });
 
-            if (error) return; 
+            if (error) { console.error(error); return; }
             tbody.innerHTML = '';
             
             if (!data || data.length === 0) { 
@@ -109,14 +118,10 @@
             
             data.forEach(cli => {
                 let statusHtml = '<span class="badge" style="background:#e2e8f0; color:#64748b;">Sem Plano</span>';
-                let vencimento = '-';
-                let telas = '-';
-                let btnNotificar = ''; 
+                let vencimento = '-', telas = '-', btnNotificar = '', btnRenovar = '';
                 
-                // Tratamento seguro para array vazio ou nulo
                 const ass = (cli.assinaturas && cli.assinaturas.length > 0) ? cli.assinaturas[0] : null;
 
-                // CORREÇÃO DO ERRO 'SPLIT': Verifica se ass existe E se tem data
                 if (ass && ass.data_vencimento) {
                     const dataFormatada = ass.data_vencimento.split('-').reverse().join('/');
                     vencimento = dataFormatada;
@@ -125,23 +130,30 @@
                     if (ass.data_vencimento < hoje) statusHtml = '<span class="badge danger">VENCIDO</span>';
                     else statusHtml = '<span class="badge success">ATIVO</span>';
 
-                    // LÓGICA DO BOTÃO DE NOTIFICAÇÃO
+                    // BOTÃO NOTIFICAR
                     if (ass.notificado) {
-                        // Ícone Check Duplo (Material Icon ok)
                         btnNotificar = `<span title="Já notificado" style="cursor:help; display:inline-flex; align-items:center; color:#3b82f6; margin-right:10px;"><i class="material-icons-round" style="font-size:18px;">done_all</i></span>`;
                     } else {
-                        // Ícone WhatsApp (SVG Inline para garantir visualização)
                         btnNotificar = `
                             <button class="action-btn" title="Enviar Cobrança" onclick="notificarCliente('${ass.id}', '${cli.whatsapp}', '${cli.nome}', '${dataFormatada}')" style="color: #25D366; background: rgba(37, 211, 102, 0.1); margin-right: 5px;">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.39-4.19-1.15l-.3-.17-3.12.82.83-3.04-.2-.32a8.188 8.188 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24M8.53 7.33c-.16-.36-.33-.37-.48-.37-.15 0-.32 0-.49 0-.17 0-.44.06-.67.31-.23.26-.9.88-.9 2.15s.92 2.48 1.05 2.65c.13.17 1.81 2.76 4.39 3.87.58.25 1 .41 1.33.51.55.17 1.2.15 1.71.07.57-.09 1.75-.71 2-1.4.25-.69.25-1.28.17-1.4-.08-.13-.29-.21-.61-.37-.32-.16-1.88-.92-2.17-1.03-.29-.11-.5-.16-.71.16-.21.32-.81 1.03-.99 1.23-.18.21-.36.24-.68.08-.32-.16-1.35-.49-2.57-1.58-.95-.85-1.59-1.9-1.78-2.22-.19-.32-.02-.49.14-.64.15-.15.33-.39.5-.58.17-.19.22-.32.33-.54.11-.22.06-.41-.03-.58-.09-.17-.81-1.95-1.11-2.67z"/></svg>
                             </button>
                         `;
                     }
+
+                    // BOTÃO RENOVAÇÃO RÁPIDA (Laranja)
+                    const validadeMeses = ass.planos?.validade_meses || 1; // Fallback 1 mês
+                    btnRenovar = `
+                        <button class="action-btn" title="Renovação Rápida (+${validadeMeses} mês)" onclick="renovarAssinatura('${ass.id}', '${ass.data_vencimento}', ${validadeMeses})" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1); margin-right: 5px;">
+                            <i class="material-icons-round">event_repeat</i>
+                        </button>
+                    `;
                 }
 
                 if (cli.bloqueado) {
                     statusHtml = '<span class="badge danger" style="background: black; color: white;">BLOQUEADO</span>';
-                    btnNotificar = ''; // Não cobra cliente bloqueado
+                    btnNotificar = ''; 
+                    btnRenovar = '';
                 }
 
                 const tr = document.createElement('tr');
@@ -158,6 +170,7 @@
                     <td data-label="Status">${statusHtml}</td>
                     <td data-label="Telas">${telas}</td>
                     <td data-label="Ações" style="text-align: right; display: flex; justify-content: flex-end; align-items: center;">
+                        ${btnRenovar}
                         ${btnNotificar}
                         <button class="btn-primary btn-sm" style="width:auto; display:inline-flex;" onclick="gerenciar('${cli.id}')">Gerenciar</button>
                     </td>
@@ -167,13 +180,73 @@
             document.getElementById('loading-screen').style.display = 'none';
         }
 
-        // --- FUNÇÃO DE NOTIFICAÇÃO ---
+        // --- LÓGICA DE RENOVAÇÃO RÁPIDA ---
+        window.renovarAssinatura = async function(id, dataVencimentoAtualStr, mesesParaAdicionar) {
+            // 1. Obter Data do Servidor via RPC
+            const { data: dataServerStr, error } = await window.supabaseClient.rpc('get_data_servidor');
+            
+            if(error) { 
+                alert("Erro ao obter data do servidor: " + error.message); 
+                return; 
+            }
+
+            // Converter strings (YYYY-MM-DD) para Objeto Date (UTC para evitar timezone)
+            const partesVenc = dataVencimentoAtualStr.split('-');
+            const dataVencimento = new Date(partesVenc[0], partesVenc[1]-1, partesVenc[2]);
+            
+            const partesServer = dataServerStr.split('-');
+            const dataHoje = new Date(partesServer[0], partesServer[1]-1, partesServer[2]);
+
+            // 2. Definir Data Base (Se venceu, usa hoje. Se não, usa vencimento atual)
+            let dataBase = dataVencimento;
+            if (dataVencimento < dataHoje) {
+                dataBase = dataHoje;
+            }
+
+            // 3. Adicionar Meses (Com lógica de dia inválido)
+            let novaData = new Date(dataBase);
+            const diaOriginal = dataBase.getDate();
+            
+            // Adiciona os meses
+            novaData.setMonth(novaData.getMonth() + mesesParaAdicionar);
+            
+            // DETECÇÃO DE DIA INVÁLIDO (Ex: 31 Jan + 1 Mês virou 3 Março no JS padrão)
+            // Se o dia da nova data for diferente do dia original, significa que o mês destino não tinha aquele dia.
+            if (novaData.getDate() !== diaOriginal) {
+                // Ajusta para o PRIMEIRO dia do mês seguinte (Posterior)
+                // O setMonth do JS já joga para o mês seguinte se vazar, então basta setar dia 1
+                novaData.setDate(1);
+                
+                const dataFormatada = novaData.toLocaleDateString('pt-BR');
+                const confirmacao = confirm(`Atenção: A renovação cairia num dia inexistente no mês destino. O vencimento será ajustado para o primeiro dia válido posterior (${dataFormatada}). Confirmar?`);
+                
+                if (!confirmacao) return; // Cancela
+            }
+
+            // Formata para salvar no banco (YYYY-MM-DD)
+            const ano = novaData.getFullYear();
+            const mes = String(novaData.getMonth() + 1).padStart(2, '0');
+            const dia = String(novaData.getDate()).padStart(2, '0');
+            const novaDataStr = `${ano}-${mes}-${dia}`;
+
+            // 4. Salvar no Supabase
+            // Reseta notificado para false, pois renovou
+            const { error: updError } = await window.supabaseClient
+                .from('assinaturas')
+                .update({ 
+                    data_vencimento: novaDataStr,
+                    notificado: false 
+                })
+                .eq('id', id);
+
+            if (updError) alert("Erro ao renovar: " + updError.message);
+            else fetchClientes(); // Atualiza tabela
+        }
+
         window.notificarCliente = async function(assinaturaId, telefone, nome, dataVencimento) {
             const msg = `Olá ${nome}, sua assinatura vence dia *${dataVencimento}*. Segue o link para renovação.`;
             const link = `https://wa.me/${telefone}?text=${encodeURIComponent(msg)}`;
-            
             window.open(link, '_blank');
-
             await window.supabaseClient.from('assinaturas').update({ notificado: true }).eq('id', assinaturaId);
             fetchClientes();
         }
@@ -188,7 +261,6 @@
             e.preventDefault(); 
             const nome = document.getElementById('quick-nome').value; 
             const whatsappFull = document.getElementById('quick-ddi').value + document.getElementById('quick-phone').value.replace(/\D/g, "");
-            
             const { data, error } = await window.supabaseClient.from('clientes').insert([{ nome: nome, whatsapp: whatsappFull }]).select().single();
             if(error) alert("Erro: " + error.message); 
             else window.location.href = `/pages/clientes/gerenciar.html?id=${data.id}`;
