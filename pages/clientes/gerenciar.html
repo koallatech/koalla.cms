@@ -8,11 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/global.css">
+    
+    <script>(function(){const s=localStorage.getItem('pandda-theme')||'light';document.documentElement.setAttribute('data-theme',s);})();</script>
 
     <style>
-        .manager-grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
         .section-header { font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         
+        /* Toggle */
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -21,19 +23,7 @@
         input:checked + .slider:before { transform: translateX(24px); }
         
         .ponto-item { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-
-        @media (max-width: 900px) { .manager-grid { grid-template-columns: 1fr; } }
     </style>
-    <head>
-    <link rel="stylesheet" href="/assets/css/global.css">
-
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('pandda-theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-    </script>
-</head>
 </head>
 
 <body data-title="Gerenciar Cliente">
@@ -62,7 +52,10 @@
                                 <div class="form-group"><label>WhatsApp</label><input type="text" id="cli-zap" class="form-control"></div>
                                 <div class="form-group"><label>Email</label><input type="text" id="cli-email" class="form-control"></div>
                                 <div class="form-group"><label>Observações</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div>
-                                <button type="button" class="btn-sm" style="background:#e2e8f0; color:#333; width:100%; margin-top:10px;" onclick="salvarDadosCliente()">Atualizar Dados</button>
+                                
+                                <button type="button" class="btn-secondary" style="margin-top:10px;" onclick="salvarDadosCliente()">
+                                    <i class="material-icons-round">sync</i> Atualizar Dados
+                                </button>
                             </form>
                         </div>
 
@@ -97,7 +90,7 @@
                                 </div>
 
                                 <div style="margin-top:20px;">
-                                    <button type="button" class="btn-primary" style="width:100%; justify-content:center;" onclick="salvarAssinatura()"><i class="material-icons-round">save</i> Salvar Contrato</button>
+                                    <button type="button" class="btn-primary" style="width:100%;" onclick="salvarAssinatura()"><i class="material-icons-round">save</i> Salvar Contrato</button>
                                 </div>
                             </form>
                         </div>
@@ -111,22 +104,26 @@
                         <div class="card" id="card-pontos" style="opacity:0.5; pointer-events:none;">
                             <div class="section-header">Pontos de Acesso</div>
                             
-                            <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px;">
+                            <div class="server-box primary">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                                     <strong style="font-size:13px; color:var(--text-secondary);">SERVIDOR PRINCIPAL</strong>
                                     <span id="count-srv1" style="font-size:13px; font-weight:700;">0/0</span>
                                 </div>
                                 <div id="lista-srv1"></div>
-                                <button class="btn-sm" style="margin-top:10px;" onclick="openModalPonto(1)">+ Adicionar Ponto</button>
+                                <button class="btn-secondary" style="font-size:12px; padding:6px 12px; width:auto; margin-top:10px;" onclick="openModalPonto(1)">
+                                    + Adicionar Ponto
+                                </button>
                             </div>
 
-                            <div id="block-srv2" style="background:#eff6ff; padding:15px; border-radius:8px; display:none;">
+                            <div id="block-srv2" class="server-box dual" style="display:none;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                                     <strong style="font-size:13px; color:var(--sidebar-active);">SERVIDOR DUAL</strong>
                                     <span id="count-srv2" style="font-size:13px; font-weight:700;">0/0</span>
                                 </div>
                                 <div id="lista-srv2"></div>
-                                <button class="btn-sm" style="margin-top:10px; color:var(--sidebar-active);" onclick="openModalPonto(2)">+ Adicionar Ponto Dual</button>
+                                <button class="btn-secondary" style="font-size:12px; padding:6px 12px; width:auto; margin-top:10px; color:var(--sidebar-active);" onclick="openModalPonto(2)">
+                                    + Adicionar Ponto Dual
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -178,7 +175,6 @@
             const selPlano = document.getElementById('plano_id');
             planos.forEach(p => selPlano.innerHTML += `<option value="${p.id}">${p.nome} (R$ ${p.preco})</option>`);
 
-            // Cache de Servidores e Apps Ativos
             const { data: srvs } = await window.supabaseClient.from('servidores').select('*').eq('ativo', true);
             servidoresCache = srvs;
             atualizarSelectsServidores();
@@ -190,7 +186,6 @@
             await carregarAssinatura();
         };
 
-        // --- BLOQUEIO / DADOS PESSOAIS ---
         async function carregarCliente() {
             const { data } = await window.supabaseClient.from('clientes').select('*').eq('id', clienteId).single();
             if(data) {
@@ -224,7 +219,6 @@
             if(error) alert("Erro."); else alert("Atualizado!");
         }
 
-        // --- ASSINATURA ---
         async function carregarAssinatura() {
             const { data } = await window.supabaseClient.from('assinaturas').select('*').eq('cliente_id', clienteId).single();
             const cardPontos = document.getElementById('card-pontos'), statusBadge = document.getElementById('status-badge');
@@ -235,16 +229,13 @@
                 document.getElementById('plano_id').value = data.plano_id;
                 document.getElementById('telas_contratadas').value = data.telas_contratadas;
                 document.getElementById('data_vencimento').value = data.data_vencimento;
-                
-                // Set servers and force DualAPP check
                 document.getElementById('servidor_primario').value = data.servidor_primario_id;
                 
                 document.getElementById('toggle-dualapp').checked = data.is_dual_app;
-                toggleDualApp(); // Mostra/Esconde divs
+                toggleDualApp();
                 
                 if(data.is_dual_app) document.getElementById('servidor_secundario').value = data.servidor_secundario_id;
-
-                travarSelectDual(); // Trava a opção repetida
+                travarSelectDual();
 
                 const hoje = new Date().toISOString().split('T')[0];
                 statusBadge.innerHTML = data.data_vencimento < hoje ? '<span class="badge danger">VENCIDO</span>' : '<span class="badge success">ATIVO</span>';
@@ -257,17 +248,14 @@
             document.getElementById('loading-screen').style.display = 'none';
         }
 
-        // Popula e Gerencia os Selects de Servidor
         function atualizarSelectsServidores() {
             const sel1 = document.getElementById('servidor_primario');
             const sel2 = document.getElementById('servidor_secundario');
             sel1.innerHTML = '<option value="">Selecione...</option>';
             sel2.innerHTML = '<option value="">Selecione...</option>';
-            
             servidoresCache.forEach(s => {
                 const opt = `<option value="${s.id}">${s.nome} ${s.alias ? '('+s.alias+')' : ''}</option>`;
-                sel1.innerHTML += opt; 
-                sel2.innerHTML += opt;
+                sel1.innerHTML += opt; sel2.innerHTML += opt;
             });
         }
 
@@ -276,13 +264,9 @@
             const sel2 = document.getElementById('servidor_secundario');
             for(let i=0; i<sel2.options.length; i++) {
                 if(sel2.options[i].value === val1 && val1 !== "") {
-                    sel2.options[i].disabled = true;
-                    sel2.options[i].style.color = "#ccc";
+                    sel2.options[i].disabled = true; sel2.options[i].style.color = "#ccc";
                     if(sel2.value === val1) sel2.value = "";
-                } else {
-                    sel2.options[i].disabled = false;
-                    sel2.options[i].style.color = "var(--text-primary)";
-                }
+                } else { sel2.options[i].disabled = false; sel2.options[i].style.color = "var(--text-primary)"; }
             }
         }
 
@@ -315,7 +299,6 @@
             if(error) alert(error.message); else { alert("Salvo!"); carregarAssinatura(); }
         }
 
-        // --- PONTOS E MODAL INTELIGENTE ---
         async function carregarPontos(assId) {
             const { data } = await window.supabaseClient.from('pontos_acesso').select('*, apps(nome)').eq('assinatura_id', assId);
             pontosSrv1 = []; pontosSrv2 = [];
@@ -337,14 +320,12 @@
             const limit = parseInt(document.getElementById('telas_contratadas').value);
             const lista = target===1 ? pontosSrv1 : pontosSrv2;
             const used = lista.reduce((a,b)=>a+b.telas_ocupadas,0);
-            if(used >= limit) return alert("Limite de telas atingido.");
+            if(used >= limit) return alert("Limite atingido.");
 
-            // Identifica Servidor Alvo
             const srvId = target === 1 ? document.getElementById('servidor_primario').value : document.getElementById('servidor_secundario').value;
             const srvObj = servidoresCache.find(s => s.id === srvId);
             document.getElementById('ponto-modal-title').innerText = `Novo Ponto: ${srvObj ? srvObj.nome : 'Servidor'}`;
 
-            // FILTRA APPS: Apenas apps deste servidor
             const selApp = document.getElementById('ponto-app');
             selApp.innerHTML = '<option value="">Selecione...</option>';
             const appsDoServidor = appsCache.filter(a => a.servidor_id === srvId);
